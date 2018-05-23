@@ -13,11 +13,11 @@ library(plotly)
 #install.packages("reshape")
 library(reshape)
 
-###Ejecuto un par de querys e identifico la que no funciona, le indico el id y tiro el kill
-scopus_ibero = dbConnect(MySQL(), user='scopus', password='sc0pus2698', dbname='scopus_ibero', host='mysql.ricyt.org')
-dbListTables(scopus)
-#dbGetQuery(scopus, "show processlist")
-#dbGetQuery(scopus, "kill 3544629")
+
+source('./00-sql.r', encoding = 'latin1')
+
+###chequear conexion###
+scopus_ibero
 
 ####QUERY PARA CREAR LA TABLA INICIAL, CREA UN LISTADO DE UTS POR CADA PAIS QUE PARTICIPA ####
 ###create table ut_year_country as select distinct b.country, a.ut, a.year, a.pub_name from article a, address b where a.ut=b.ut; ####
@@ -970,7 +970,8 @@ total <- rbind(brazil,spain,argentina,mexico,portugal,chile,
 
 View(total)
 
-plot_ly(total, x = ~year, y = ~ratio, type = 'scatter',  color = ~country, mode = 'lines')
+plot_ly(total, x = ~year, y = ~ratio_colab, type = 'scatter',  color = ~country, mode = 'lines')
+
 
 #setwd("~/SCI_genero")
 #setwd(".")
