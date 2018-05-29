@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Tue May 29 14:21:43 2018
+
+@author: Observatorio
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Apr 20 21:04:28 2018
 @author: Juan
 """
@@ -30,17 +37,27 @@ for f in files:
 
 #df.columns
 df.shape
+df= df.dropna(subset=['C1'])
+df.shape
 
-base_genero =  df[['C1','FU','UT','SO','DA\r']]
-#base_genero =  df[['C1','FU']]
+base_genero =  df[['C1','FU','UT','SO','PY']]
+base_genero.shape
 
+#Recupera el UT
+ut =  df[['UT','PY']]
+ut.reset_index(level=[0], inplace=True)
+ut = ut.rename(index=str, columns={"index": "nrow"})
+
+
+###pasa a index
 base_genero= base_genero.set_index('UT')
-base_genero= base_genero.dropna(subset=['C1'])
 cantidad = base_genero.shape[0]
+
 
 ###AUTORES y UNIVERSIDADES
 aut_univ1 = []
 aut_univ2 = []
+nrow = []
 for i in range(cantidad):
     ####CAPTURA TODO LO QUE ESTA ENTRE CORCHETES
     ####EN ESTE CASO ME SIRVE PORQUE LOS AUTORES ESTAN ENTRE LOS CORCHETES
@@ -48,6 +65,14 @@ for i in range(cantidad):
     #### EN ESTE CASO CAPTA TODO LO QUE ESTA DESPUES DEL CORCHETE DE CIERRE - ACA CAPTARIA 
     ####TODA LA DIRECCION 
     aut_univ2.append(re.findall(r"\][A-Z a-z 0-9 _ ,;.&'-]+", base_genero['C1'][i]))
+    nrow.append(i)
+
+nrow = pd.DataFrame(nrow)
+nrow.columns = ['nrow']
+
+
+
+identificador= pd.merge(ut, nrow, on=['nrow'], how='left')
 
 
 #####autores####
@@ -92,6 +117,7 @@ ejercicio2 = ejercicio2.rename(index=str, columns={"level_2": "Nro_autor",0: "No
 ejercicio.reset_index(level=[1], inplace=True)
 ejercicio.reset_index(level=[0], inplace=True)
 AuthorXInstitution= pd.merge(ejercicio2, ejercicio, on=['nrow', 'NroInst'], how='left')
+AuthorXInstitution= pd.merge(AuthorXInstitution, identificador, on=['nrow'], how='left')
 
 ####SEPARA####
 AuthorXInstitution['Nombre'] = AuthorXInstitution['Nombre_autor'].str.rsplit(',').str[-1] 
@@ -101,9 +127,43 @@ AuthorXInstitution['Apellido'] = AuthorXInstitution['Nombre_autor'].str.rsplit('
 AuthorXInstitution['Institucion'] = AuthorXInstitution['Direccion'].str.rsplit(',').str[0] 
 AuthorXInstitution['Pais'] = AuthorXInstitution['Direccion'].str.rsplit(',').str[-1] 
 
+
+AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace(';','')
+
+AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace('\d+','')
+
+###En el caso de USA tiene que eliminar el codigo postal  2 letras seguidas de digitos y finalmente esta el país
+AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace('[A-Z].*[0-9]','')
+###En el caso de USA ttambien pasa que no ponen el codigo postal sino el estado
+###asi que me fijo todo lo que diga cualquier letra, espacio, usa y lo reemplazo por USA
+AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace('[A-Z].*[USA]','USA')
+
+###quita los espacios###
+AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.strip()
+AuthorXInstitution['Institucion'] = AuthorXInstitution['Institucion'].str.strip()
+AuthorXInstitution['Nombre'] = AuthorXInstitution['Nombre'].str.strip()
+AuthorXInstitution['Apellido'] = AuthorXInstitution['Apellido'].str.strip()
+
+
+
+
 #####DEJA LA BASE PREPARADA PARA TRABAJAR CON EXPRESIONES REGULARES######
-
-
-##################ARMA LISTADO UNICO DE NOMBRES#####################
+##################CONTROLES#####################
 listado_nombres=AuthorXInstitution['Nombre'].unique()
 listado_nombres = pd.DataFrame(listado_nombres)
+
+listado_paises=AuthorXInstitution['Pais'].unique()
+listado_paises = pd.DataFrame(listado_paises)
+
+#control_ut=AuthorXInstitution['UT'].unique()
+#control_ut = pd.DataFrame(control_ut)
+
+
+#control_ut
+#cantidad
+
+
+
+
+
+
