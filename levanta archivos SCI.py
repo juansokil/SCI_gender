@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 29 14:21:43 2018
-
-@author: Observatorio
-"""
 
 # -*- coding: utf-8 -*-
 """
@@ -13,8 +7,6 @@ Created on Fri Apr 20 21:04:28 2018
 import csv
 import os
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import re
 
 #VERSION 2
@@ -31,20 +23,18 @@ for f in files:
     print(csv)
     df = df.append(csv)
 
- #Quita duplicados
-#df = df.drop_duplicates(subset=None, keep='first', inplace=False)
-#df = df.dropna(subset=columnas, how='all')
 
 #df.columns
 df.shape
 df= df.dropna(subset=['C1'])
 df.shape
 
-base_genero =  df[['C1','FU','UT','SO','PY']]
+
+base_genero =  df[['C1','FU','UT','SO','PY','TI','SO','WC','SC']]
 base_genero.shape
 
 #Recupera el UT
-ut =  df[['UT','PY']]
+ut =  df[['UT','PY','TI','SO','WC','SC']]
 ut.reset_index(level=[0], inplace=True)
 ut = ut.rename(index=str, columns={"index": "nrow"})
 
@@ -145,12 +135,19 @@ AuthorXInstitution['Nombre'] = AuthorXInstitution['Nombre'].str.strip()
 AuthorXInstitution['Apellido'] = AuthorXInstitution['Apellido'].str.strip()
 
 
+AuthorXInstitution=AuthorXInstitution.drop_duplicates()
+
+
+
+AuthorXInstitution.to_csv('Author.csv')
 
 
 #####DEJA LA BASE PREPARADA PARA TRABAJAR CON EXPRESIONES REGULARES######
 ##################CONTROLES#####################
 listado_nombres=AuthorXInstitution['Nombre'].unique()
 listado_nombres = pd.DataFrame(listado_nombres)
+
+
 
 listado_paises=AuthorXInstitution['Pais'].unique()
 listado_paises = pd.DataFrame(listado_paises)
