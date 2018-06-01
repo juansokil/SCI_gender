@@ -5,7 +5,7 @@ Created on Thu May 24 16:32:09 2018
 @author: Observatorio
 """
 
-
+import pandas as pd
 
 
 
@@ -21,8 +21,17 @@ pd.Series(['Universidad de Buenos Aires ',
            '3b', 
            '03c']).str.contains('[Uu]n[iv].*[Bb][us].*[Aa][is]')
 
+pd.Series(['Universidad de Buenos Aires ',
+           'Universidad de Bs Aires ', 
+           'Univ Bs As', 
+           'Unv de Buenos Aires', 
+           '3b', 
+           '03c']).str.contains('[Uu]n[iv]/W*[Bb][us].*[Aa][is]')
+
 uba1 = r'[Uu]n[iv].*[Bb][us].*[Aa][is]'
 uba2 = r'UBA'
+uba1 = r'[Uu]n[iv].*[Bb][us].*[Aa][is]'
+
 
 AuthorXInstitution['UBA1']= AuthorXInstitution['Institucion'].str.contains(uba1)
 AuthorXInstitution['UBA2']= AuthorXInstitution['Institucion'].str.contains(uba2)

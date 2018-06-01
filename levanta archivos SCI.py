@@ -1,4 +1,6 @@
 
+
+
 # -*- coding: utf-8 -*-
 """
 Created on Fri Apr 20 21:04:28 2018
@@ -23,11 +25,11 @@ for f in files:
     print(csv)
     df = df.append(csv)
 
-
 #df.columns
 df.shape
 df= df.dropna(subset=['C1'])
 df.shape
+
 
 
 base_genero =  df[['C1','FU','UT','SO','PY','TI','SO','WC','SC']]
@@ -37,7 +39,6 @@ base_genero.shape
 ut =  df[['UT','PY','TI','SO','WC','SC']]
 ut.reset_index(level=[0], inplace=True)
 ut = ut.rename(index=str, columns={"index": "nrow"})
-
 
 ###pasa a index
 base_genero= base_genero.set_index('UT')
@@ -60,10 +61,7 @@ for i in range(cantidad):
 nrow = pd.DataFrame(nrow)
 nrow.columns = ['nrow']
 
-
-
 identificador= pd.merge(ut, nrow, on=['nrow'], how='left')
-
 
 #####autores####
 df1 = pd.DataFrame(aut_univ1)
@@ -73,7 +71,6 @@ df1.reset_index(level=[1], inplace=True)
 df1.reset_index(level=[0], inplace=True)
 
 df1 = df1.rename(index=str, columns={"level_1": "NroInst", 0: "Autor", "index": "nrow"})
-
 df1['Autor']=df1['Autor'].str.replace('[','')
 df1['Autor']=df1['Autor'].str.replace(']','')
 
@@ -85,11 +82,8 @@ df2.reset_index(level=[1], inplace=True)
 df2.reset_index(level=[0], inplace=True)
 
 df2 = df2.rename(index=str, columns={"level_1": "NroInst", 0: "Direccion", "index": "nrow"})
-
 df2['Direccion']=df2['Direccion'].str.replace('[','')
 df2['Direccion']=df2['Direccion'].str.replace(']','')
-
-
 
 
 ejercicio= pd.merge(df1, df2, on=['nrow', 'NroInst'], how='left')
@@ -113,15 +107,11 @@ AuthorXInstitution= pd.merge(AuthorXInstitution, identificador, on=['nrow'], how
 AuthorXInstitution['Nombre'] = AuthorXInstitution['Nombre_autor'].str.rsplit(',').str[-1] 
 AuthorXInstitution['Apellido'] = AuthorXInstitution['Nombre_autor'].str.rsplit(',').str[0] 
 
-
 AuthorXInstitution['Institucion'] = AuthorXInstitution['Direccion'].str.rsplit(',').str[0] 
 AuthorXInstitution['Pais'] = AuthorXInstitution['Direccion'].str.rsplit(',').str[-1] 
 
-
 AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace(';','')
-
 AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace('\d+','')
-
 ###En el caso de USA tiene que eliminar el codigo postal  2 letras seguidas de digitos y finalmente esta el país
 AuthorXInstitution['Pais'] = AuthorXInstitution['Pais'].str.replace('[A-Z].*[0-9]','')
 ###En el caso de USA ttambien pasa que no ponen el codigo postal sino el estado
@@ -137,17 +127,12 @@ AuthorXInstitution['Apellido'] = AuthorXInstitution['Apellido'].str.strip()
 
 AuthorXInstitution=AuthorXInstitution.drop_duplicates()
 
-
-
 AuthorXInstitution.to_csv('Author.csv')
-
 
 #####DEJA LA BASE PREPARADA PARA TRABAJAR CON EXPRESIONES REGULARES######
 ##################CONTROLES#####################
 listado_nombres=AuthorXInstitution['Nombre'].unique()
 listado_nombres = pd.DataFrame(listado_nombres)
-
-
 
 listado_paises=AuthorXInstitution['Pais'].unique()
 listado_paises = pd.DataFrame(listado_paises)
@@ -155,12 +140,5 @@ listado_paises = pd.DataFrame(listado_paises)
 #control_ut=AuthorXInstitution['UT'].unique()
 #control_ut = pd.DataFrame(control_ut)
 
-
 #control_ut
 #cantidad
-
-
-
-
-
-
