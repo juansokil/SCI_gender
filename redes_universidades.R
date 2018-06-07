@@ -21,6 +21,26 @@ setwd("~/SCI_genero")
 source('./00-sql.r', encoding = 'latin1')
 
 
+
+
+
+###########################################LATINOAMERICA################################
+
+cantidades_total_Latino<- dbSendQuery(scopus_ibero, "select  year, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and (country='Argentina' or country='Brazil' or country='Chile' or country='Colombia' or country='Mexico' or country='Peru' or country='Cuba' or country='Ecuador' or country='Uruguay' or country='Paraguay') group by year")
+cantidades_total_Latino <-  fetch(cantidades_total_Latino, n=-1)
+cantidades_nano_Latino<- dbSendQuery(scopus_ibero, "select  a.year, count(distinct a.ut) from scopus_ibero.article_nano a, scopus_ibero.author_address b where a.ut=b.ut and (b.country='Argentina') group by a.year")
+cantidades_nano_Latino <-  fetch(cantidades_nano_Latino, n=-1)
+cantidades_nano_Latino
+cantidades_biotech_Latino<- dbSendQuery(scopus_ibero, "select  a.year, count(distinct a.ut) from scopus_ibero.article_biotech a, scopus_ibero.author_address b where a.ut=b.ut and (b.country='Argentina' or b.country='Brazil' or b.country='Chile' or b.country='Colombia' or b.country='Mexico' or b.country='Peru' or b.country='Cuba' or b.country='Ecuador' or b.country='Uruguay' or b.country='Paraguay') group by  a.year")
+cantidades_biotech_Latino <-  fetch(cantidades_biotech_Latino, n=-1)
+cantidades_tic_Latino<- dbSendQuery(scopus_ibero, "select  a.year, count(distinct a.ut) from scopus_ibero.article_tic a, scopus_ibero.author_address b where a.ut=b.ut and (b.country='Argentina' or b.country='Brazil' or b.country='Chile' or b.country='Colombia' or b.country='Mexico' or b.country='Peru' or b.country='Cuba' or b.country='Ecuador' or b.country='Uruguay' or b.country='Paraguay') group by  a.year")
+cantidades_tic_Latino <-  fetch(cantidades_tic_Latino, n=-1)
+
+
+
+
+
+
 ###########################################ARGENTINA################################
 ####CONSULTA PARA VER LAS CANTIDADES POR PAIS 
 cantidades_total_Argentina<- dbSendQuery(scopus_ar, "select country, year, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and (country='Argentina') group by country, year")
@@ -360,100 +380,100 @@ cantidades_tic_univ_Total <- rbind(cantidades_tic_univ_Argentina, cantidades_tic
 
 
 
-redes_nano_univ_Argentina$inst_name[redes_nano_univ_Argentina$inst_id==1000]<- 'Univ Buenos Aires'
-redes_nano_univ_Argentina$inst_name[redes_nano_univ_Argentina$inst_id==1003]<- 'Univ Nac de Córdoba'
-redes_nano_univ_Argentina$inst_name[redes_nano_univ_Argentina$inst_id==1014]<- 'Univ Nac de La Plata'
+
+redes_nano_univ_Argentina$inst_name[redes_nano_univ_Argentina$inst_id==1000]<- 'UBA'
+redes_nano_univ_Argentina$inst_name[redes_nano_univ_Argentina$inst_id==1003]<- 'UNC'
+redes_nano_univ_Argentina$inst_name[redes_nano_univ_Argentina$inst_id==1014]<- 'UNLP'
 redes_nano_univ_Argentina$country = 'AR'
 
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==1]<- 'Univ de Sao Paulo'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==2]<- 'Univ Estad de Campinas'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==3]<- 'Univ Fed de Rio de Janeiro'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==7]<- 'Univ Estad Paulista'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==4]<- 'Univ Fed Rio Grande do Sul'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==5]<- 'Univ Fed de Minas Gerais'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==21]<- 'Univ Fed de Paraná'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==13]<- 'Univ Fed de Sao Paulo'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==6]<- 'Univ Fed de Santa Catarina'
-redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==9]<- 'Univ de Brasilia'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==1]<- 'USP'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==2]<- 'UNICAMP'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==3]<- 'UFRJ'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==7]<- 'UNESP'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==4]<- 'UFRGS'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==5]<- 'UFMG'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==21]<- 'UFPR'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==13]<- 'UNIFESP'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==6]<- 'UFSC'
+redes_nano_univ_Brazil$inst_name[redes_nano_univ_Brazil$inst_id==9]<- 'UnB'
 redes_nano_univ_Brazil$country = 'BR'
 
-redes_nano_univ_Chile$inst_name[redes_nano_univ_Chile$inst_id==1]<- 'Univ de Chile'
-redes_nano_univ_Chile$inst_name[redes_nano_univ_Chile$inst_id==2]<- 'Pont Univ Católica de Chile'
-redes_nano_univ_Chile$inst_name[redes_nano_univ_Chile$inst_id==3]<- 'Univ de Concepción'
+redes_nano_univ_Chile$inst_name[redes_nano_univ_Chile$inst_id==1]<- 'UCHILE'
+redes_nano_univ_Chile$inst_name[redes_nano_univ_Chile$inst_id==2]<- 'PUC'
+redes_nano_univ_Chile$inst_name[redes_nano_univ_Chile$inst_id==3]<- 'UdeC'
 redes_nano_univ_Chile$country = 'CL'
 
-redes_nano_univ_Colombia$inst_name[redes_nano_univ_Colombia$inst_id==1]<- 'Univ Nacional de Colombia'
-redes_nano_univ_Colombia$inst_name[redes_nano_univ_Colombia$inst_id==2]<- 'Univ de ANtioquia'
+redes_nano_univ_Colombia$inst_name[redes_nano_univ_Colombia$inst_id==1]<- 'UNAL'
+redes_nano_univ_Colombia$inst_name[redes_nano_univ_Colombia$inst_id==2]<- 'UdeA'
 redes_nano_univ_Colombia$country = 'CO'
 
-redes_nano_univ_Mexico$inst_name[redes_nano_univ_Mexico$inst_id==1001]<- 'Univ Nac Autónoma de México'
-redes_nano_univ_Mexico$inst_name[redes_nano_univ_Mexico$inst_id==1002]<- 'Inst Politéc Nacional'
+redes_nano_univ_Mexico$inst_name[redes_nano_univ_Mexico$inst_id==1001]<- 'UNAM'
+redes_nano_univ_Mexico$inst_name[redes_nano_univ_Mexico$inst_id==1002]<- 'IPN'
 redes_nano_univ_Mexico$country = 'MX'
 
 
 
-redes_biotech_univ_Argentina$inst_name[redes_biotech_univ_Argentina$inst_id==1000]<- 'Univ Buenos Aires'
-redes_biotech_univ_Argentina$inst_name[redes_biotech_univ_Argentina$inst_id==1003]<- 'Univ Nac de Córdoba'
-redes_biotech_univ_Argentina$inst_name[redes_biotech_univ_Argentina$inst_id==1014]<- 'Univ Nac de La Plata'
+redes_biotech_univ_Argentina$inst_name[redes_biotech_univ_Argentina$inst_id==1000]<- 'UBA'
+redes_biotech_univ_Argentina$inst_name[redes_biotech_univ_Argentina$inst_id==1003]<- 'UNC'
+redes_biotech_univ_Argentina$inst_name[redes_biotech_univ_Argentina$inst_id==1014]<- 'UNLP'
 redes_biotech_univ_Argentina$country = 'AR'
 
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==1]<- 'Univ de Sao Paulo'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==2]<- 'Univ Estad de Campinas'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==3]<- 'Univ Fed de Rio de Janeiro'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==7]<- 'Univ Estad Paulista'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==4]<- 'Univ Fed Rio Grande do Sul'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==5]<- 'Univ Fed de Minas Gerais'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==21]<- 'Univ Fed de Paraná'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==13]<- 'Univ Fed de Sao Paulo'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==6]<- 'Univ Fed de Santa Catarina'
-redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==9]<- 'Univ de Brasilia'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==1]<- 'USP'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==2]<- 'UNICAMP'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==3]<- 'UFRJ'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==7]<- 'UNESP'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==4]<- 'UFRGS'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==5]<- 'UFMG'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==21]<- 'UFPR'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==13]<- 'UNIFESP'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==6]<- 'UFSC'
+redes_biotech_univ_Brazil$inst_name[redes_biotech_univ_Brazil$inst_id==9]<- 'UnB'
 redes_biotech_univ_Brazil$country = 'BR'
 
-redes_biotech_univ_Chile$inst_name[redes_biotech_univ_Chile$inst_id==1]<- 'Univ de Chile'
-redes_biotech_univ_Chile$inst_name[redes_biotech_univ_Chile$inst_id==2]<- 'Pont Univ Católica de Chile'
-redes_biotech_univ_Chile$inst_name[redes_biotech_univ_Chile$inst_id==3]<- 'Univ de Concepción'
+redes_biotech_univ_Chile$inst_name[redes_biotech_univ_Chile$inst_id==1]<- 'UCHILE'
+redes_biotech_univ_Chile$inst_name[redes_biotech_univ_Chile$inst_id==2]<- 'PUC'
+redes_biotech_univ_Chile$inst_name[redes_biotech_univ_Chile$inst_id==3]<- 'UdeC'
 redes_biotech_univ_Chile$country = 'CL'
 
-redes_biotech_univ_Colombia$inst_name[redes_biotech_univ_Colombia$inst_id==1]<- 'Univ Nacional de Colombia'
-redes_biotech_univ_Colombia$inst_name[redes_biotech_univ_Colombia$inst_id==2]<- 'Univ de ANtioquia'
+redes_biotech_univ_Colombia$inst_name[redes_biotech_univ_Colombia$inst_id==1]<- 'UNAL'
+redes_biotech_univ_Colombia$inst_name[redes_biotech_univ_Colombia$inst_id==2]<- 'UdeA'
 redes_biotech_univ_Colombia$country = 'CO'
 
-redes_biotech_univ_Mexico$inst_name[redes_biotech_univ_Mexico$inst_id==1001]<- 'Univ Nac Autónoma de México'
-redes_biotech_univ_Mexico$inst_name[redes_biotech_univ_Mexico$inst_id==1002]<- 'Inst Politéc Nacional'
+redes_biotech_univ_Mexico$inst_name[redes_biotech_univ_Mexico$inst_id==1001]<- 'UNAM'
+redes_biotech_univ_Mexico$inst_name[redes_biotech_univ_Mexico$inst_id==1002]<- 'IPN'
 redes_biotech_univ_Mexico$country = 'MX'
 
 
 
-redes_tic_univ_Argentina$inst_name[redes_tic_univ_Argentina$inst_id==1000]<- 'Univ Buenos Aires'
-redes_tic_univ_Argentina$inst_name[redes_tic_univ_Argentina$inst_id==1003]<- 'Univ Nac de Córdoba'
-redes_tic_univ_Argentina$inst_name[redes_tic_univ_Argentina$inst_id==1014]<- 'Univ Nac de La Plata'
+redes_tic_univ_Argentina$inst_name[redes_tic_univ_Argentina$inst_id==1000]<- 'UBA'
+redes_tic_univ_Argentina$inst_name[redes_tic_univ_Argentina$inst_id==1003]<- 'UNC'
+redes_tic_univ_Argentina$inst_name[redes_tic_univ_Argentina$inst_id==1014]<- 'UNLP'
 redes_tic_univ_Argentina$country = 'AR'
 
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==1]<- 'Univ de Sao Paulo'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==2]<- 'Univ Estad de Campinas'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==3]<- 'Univ Fed de Rio de Janeiro'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==7]<- 'Univ Estad Paulista'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==4]<- 'Univ Fed Rio Grande do Sul'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==5]<- 'Univ Fed de Minas Gerais'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==21]<- 'Univ Fed de Paraná'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==13]<- 'Univ Fed de Sao Paulo'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==6]<- 'Univ Fed de Santa Catarina'
-redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==9]<- 'Univ de Brasilia'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==1]<- 'USP'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==2]<- 'UNICAMP'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==3]<- 'UFRJ'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==7]<- 'UNESP'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==4]<- 'UFRGS'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==5]<- 'UFMG'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==21]<- 'UFPR'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==13]<- 'UNIFESP'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==6]<- 'UFSC'
+redes_tic_univ_Brazil$inst_name[redes_tic_univ_Brazil$inst_id==9]<- 'UnB'
 redes_tic_univ_Brazil$country = 'BR'
 
-redes_tic_univ_Chile$inst_name[redes_tic_univ_Chile$inst_id==1]<- 'Univ de Chile'
-redes_tic_univ_Chile$inst_name[redes_tic_univ_Chile$inst_id==2]<- 'Pont Univ Católica de Chile'
-redes_tic_univ_Chile$inst_name[redes_tic_univ_Chile$inst_id==3]<- 'Univ de Concepción'
+redes_tic_univ_Chile$inst_name[redes_tic_univ_Chile$inst_id==1]<- 'UCHILE'
+redes_tic_univ_Chile$inst_name[redes_tic_univ_Chile$inst_id==2]<- 'PUC'
+redes_tic_univ_Chile$inst_name[redes_tic_univ_Chile$inst_id==3]<- 'UdeC'
 redes_tic_univ_Chile$country = 'CL'
 
-redes_tic_univ_Colombia$inst_name[redes_tic_univ_Colombia$inst_id==1]<- 'Univ Nacional de Colombia'
-redes_tic_univ_Colombia$inst_name[redes_tic_univ_Colombia$inst_id==2]<- 'Univ de ANtioquia'
+redes_tic_univ_Colombia$inst_name[redes_tic_univ_Colombia$inst_id==1]<- 'UNAL'
+redes_tic_univ_Colombia$inst_name[redes_tic_univ_Colombia$inst_id==2]<- 'UdeA'
 redes_tic_univ_Colombia$country = 'CO'
 
-redes_tic_univ_Mexico$inst_name[redes_tic_univ_Mexico$inst_id==1001]<- 'Univ Nac Autónoma de México'
-redes_tic_univ_Mexico$inst_name[redes_tic_univ_Mexico$inst_id==1002]<- 'Inst Politéc Nacional'
+redes_tic_univ_Mexico$inst_name[redes_tic_univ_Mexico$inst_id==1001]<- 'UNAM'
+redes_tic_univ_Mexico$inst_name[redes_tic_univ_Mexico$inst_id==1002]<- 'IPN'
 redes_tic_univ_Mexico$country = 'MX'
-
 
 redes_nano_univ_Total <-  rbind(redes_nano_univ_Argentina, redes_nano_univ_Brazil, redes_nano_univ_Chile, redes_nano_univ_Colombia, redes_nano_univ_Mexico)
 redes_biotech_univ_Total <-  rbind(redes_biotech_univ_Argentina, redes_biotech_univ_Brazil, redes_biotech_univ_Chile, redes_biotech_univ_Colombia, redes_biotech_univ_Mexico)
@@ -481,12 +501,16 @@ dbWriteTable(scopus_ibero, name='redes_tic_univ_Total2', value=redes_tic_univ_To
 
 ###############Nano#############################
 # Trae la consulta y muestra los datos
-aristas <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, b.inst_name as Target, count(distinct a.ut) from redes_nano_univ_Total a, redes_nano_univ_Total b where a.ut=b.ut and a.inst_name <> b.inst_name group by a.inst_name, b.inst_name")
+aristas <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, b.inst_name as Target, count(distinct a.ut) from redes_nano_univ_Total a, redes_nano_univ_Total2 b where a.ut=b.ut and a.inst_name > b.inst_name group by a.inst_name, b.inst_name")
 #nodos <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, sum(distinct a.ut) as total from redes_nano_univ_Total a group by a.inst_name")
+
+write.csv(aristas, 'aristas_nano.csv')
 
 nodos <- redes_nano_univ_Total %>% 
   group_by(inst_name, inst_name) %>%                            # multiple group columns
   summarise(cantidades = n_distinct(ut))  # multiple summary columns
+
+write.csv(nodos, 'nodos_nano.csv')
 
 #Creo el grafo
 grafo <- graph.data.frame(aristas, directed=FALSE)
@@ -506,12 +530,18 @@ dev.off()
 
 ###############Biotech#############################
 # Trae la consulta y muestra los datos
-aristas <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, b.inst_name as Target, count(distinct a.ut) from redes_biotech_univ_Total a, redes_biotech_univ_Total b where a.ut=b.ut and a.inst_name <> b.inst_name group by a.inst_name, b.inst_name")
+aristas <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, b.inst_name as Target, count(distinct a.ut) from redes_biotech_univ_Total a, redes_biotech_univ_Total2 b where a.ut=b.ut and a.inst_name > b.inst_name group by a.inst_name, b.inst_name")
 #nodos <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, sum(distinct a.ut) as total from redes_biotech_univ_Total a group by a.inst_name")
+
+write.csv(aristas, 'aristas_biotech.csv')
 
 nodos <- redes_biotech_univ_Total %>% 
   group_by(inst_name, inst_name) %>%                            # multiple group columns
   summarise(cantidades = n_distinct(ut))  # multiple summary columns
+
+View(nodos)
+
+write.csv(nodos, 'nodos_biotech.csv')
 
 #Creo el grafo
 grafo <- graph.data.frame(aristas, directed=FALSE)
@@ -532,12 +562,18 @@ dev.off()
 
 ###############TIC#############################
 # Trae la consulta y muestra los datos
-aristas <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, b.inst_name as Target, count(distinct a.ut) from redes_tic_univ_Total a, redes_tic_univ_Total b where a.ut=b.ut and a.inst_name <> b.inst_name group by a.inst_name, b.inst_name")
+aristas <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, b.inst_name as Target, count(distinct a.ut) from redes_tic_univ_Total a, redes_tic_univ_Total2 b where a.ut=b.ut and a.inst_name > b.inst_name group by a.inst_name, b.inst_name")
 #nodos <- dbGetQuery(scopus_ibero, "select a.inst_name as Source, sum(distinct a.ut) as total from redes_tic_univ_Total a group by a.inst_name")
+
+write.csv(aristas, 'aristas_tic.csv')
+
 
 nodos <- redes_tic_univ_Total %>% 
   group_by(inst_name, inst_name) %>%                            # multiple group columns
   summarise(cantidades = n_distinct(ut))  # multiple summary columns
+
+write.csv(nodos, 'nodos_tic.csv')
+
 
 #Creo el grafo
 grafo <- graph.data.frame(aristas, directed=FALSE)

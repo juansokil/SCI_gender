@@ -1,67 +1,48 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu May 24 16:32:09 2018
-
 @author: Observatorio
 """
 
 import pandas as pd
-
-
-
-###http://www.mpi.nl/corpus/html/trova/ch01s04.html
-
-###busca un numero y una letra
-
-### BUSCA UBA
-pd.Series(['Universidad de Buenos Aires ',
-           'Universidad de Bs Aires ', 
-           'Univ Bs As', 
-           'Unv de Buenos Aires', 
-           '3b', 
-           '03c']).str.contains('[Uu]n[iv].*[Bb][us].*[Aa][is]')
-
-pd.Series(['Universidad de Buenos Aires ',
-           'Universidad de Bs Aires ', 
-           'Univ Bs As', 
-           'Unv de Buenos Aires', 
-           '3b', 
-           '03c']).str.contains('[Uu]n[iv]/W*[Bb][us].*[Aa][is]')
-
-uba1 = r'[Uu]n[iv].*[Bb][us].*[Aa][is]'
-uba2 = r'UBA'
-uba1 = r'[Uu]n[iv].*[Bb][us].*[Aa][is]'
-
-
-AuthorXInstitution['UBA1']= AuthorXInstitution['Institucion'].str.contains(uba1)
-AuthorXInstitution['UBA2']= AuthorXInstitution['Institucion'].str.contains(uba2)
-
-
-cordoba=r'[Uu]n[iv].*[Nn][ac].*[Cc][oó][r]'
-AuthorXInstitution['UNC'] = AuthorXInstitution['Institucion'].str.contains(cordoba)
-
-
-
-columns = ['institucion_id','institucion_desc', 'regex']
-
-keywords = pd.DataFrame(columns=columns)
-keywords
-
-
-
-
-
-
-
-
-
-
-
-
-#####PATRONES#####
 import re
-result = re.sub('abc',  '',    input)           # Delete pattern abc
-result = re.sub('abc',  'def', input)           # Replace pattern abc -> def
-result = re.sub(r'\s+', ' ',   input)           # Eliminate duplicate whitespaces
-result = re.sub('abc(def)ghi', r'\1', input)    # Replace a string with a part of itself
+
+###Las expresiones regulares tienen 3 claves
+###1 castellano
+###2 sigla
+###3 Ingles
+#uba='([Uu]n[iv].*\s?de|of\s?[Bb][us].*\s?[Aa][is])|(UBA)|([Bb][us].*\s?[Aa][is].*\s?[Uu]n[iv])'
+#unc='(([Uu]n[iv].*\s?[Nn]ac.*\s?de|of\s?[Cc]or)|(UNC)|([Nn]at.*\s?[Uu]n[iv].*\s?de|of\s?[Cc]or))'
+
+
+instituciones_dict = [{'country': 'AR', 'inst_id': 1000, 'inst_name': 'Universidad de Buenos Aires', 'regex': '([Uu]n[iv].*\s?de|of\s?[Bb][us].*\s?[Aa][is])|(UBA)|([Bb][us].*\s?[Aa][is].*\s?[Uu]n[iv])'},
+                  {'country': 'AR', 'inst_id': 1003, 'inst_name': 'Universidad Nacional de Cordoba', 'regex': '(([Uu]n[iv].*\s?[Nn]ac.*\s?de|of\s?[Cc]or)|(UNC)|([Nn]at.*\s?[Uu]n[iv].*\s?de|of\s?[Cc]or))'}]
+instituciones = pd.DataFrame(instituciones_dict)
+
+listado= pd.Series(['Universidad de Buenos Aires ',
+           'Universidad de Bs Aires ', 
+           'Universidad de Bs As', 
+           '3b', 
+           'University of Buenos Aires', 
+           'Universi', 
+           'UBA', 
+           'University of Bs As', 
+           'Unv de Buenos Aires', 
+           'cosas de Buenos Aires', 
+           '03c',
+           'Universidad Naci de Cordoba', 
+           'Bs As university', 
+           'UNC', 
+           'Buenos Aires University', 
+           'National University of Cordo'
+           ])
+
+###Busquedas
+listado.str.contains(instituciones['regex'][0])
+listado.str.contains(instituciones['regex'][1])
+
+
+    
+
+
 
