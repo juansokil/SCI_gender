@@ -28,7 +28,7 @@ cantidades_por_pais <-  fetch(cantidades_por_pais, n=-1)
 View(cantidades_por_pais)
 
 #############TOTALES##############
-author_address_gender<- dbSendQuery(sci_ibero, "select a.ut, a.order, a.name, a.surname, a.country from author_address a where country='Argentina' or country='Chile'")
+author_address_gender<- dbSendQuery(sci_ibero, "select a.ut, a.order, a.name, a.surname, a.country from author_address a where country='Argentina' or country='Chile' or country='Uruguay' or country='Paraguay'")
 author_address_gender <-  fetch(author_address_gender, n=-1)
 
 
@@ -91,6 +91,7 @@ argentina_total_genero_red <- argentina_total_genero[c(2,4,5,6,7,8,9,10,12)]
 argentina_total_genero_red <- unique(argentina_total_genero_red )
 
 
+View(argentina_total_genero_red)
 
 
 ####Pega la tabla al sql
@@ -101,6 +102,12 @@ dbListTables(sci_ibero)
 cantidades_argentina <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_argentina GROUP BY year, gender")
 cantidades_argentina <-  fetch(cantidades_argentina, n=-1)
 cantidades_argentina
+
+
+cantidades_genero_argentina <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_argentina GROUP BY year, gender")
+cantidades_genero_argentina <-  fetch(cantidades_genero_argentina, n=-1)
+cantidades_genero_argentina
+View(cantidades_genero_argentina)
 
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
@@ -158,12 +165,17 @@ cantidades_chile <-  fetch(cantidades_chile, n=-1)
 cantidades_chile
 
 
+cantidades_genero_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_chile GROUP BY year, gender")
+cantidades_genero_chile <-  fetch(cantidades_genero_chile, n=-1)
+cantidades_genero_chile
+View(cantidades_genero_chile)
+
+
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
 cantidades_chile_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_chile WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_chile_con_autor <-  fetch(cantidades_chile_con_autor, n=-1)
 cantidades_chile_con_autor
-
 
 
 
@@ -211,7 +223,14 @@ dbListTables(sci_ibero)
 
 cantidades_uruguay <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_uruguay GROUP BY year, gender")
 cantidades_uruguay <-  fetch(cantidades_uruguay, n=-1)
-cantidades_uruguay
+View(cantidades_uruguay)
+
+
+
+cantidades_genero_uruguay <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_uruguay GROUP BY year, gender")
+cantidades_genero_uruguay <-  fetch(cantidades_genero_uruguay, n=-1)
+cantidades_genero_uruguay
+View(cantidades_genero_uruguay)
 
 
 ###consulta####
@@ -277,7 +296,7 @@ dbListTables(sci_ibero)
 
 cantidades_paraguay <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_paraguay GROUP BY year, gender")
 cantidades_paraguay <-  fetch(cantidades_paraguay, n=-1)
-cantidades_paraguay
+View(cantidades_paraguay)
 
 
 ###consulta####
@@ -289,6 +308,62 @@ cantidades_paraguay_con_autor
 
 
 
+
+
+
+
+
+
+#####PAISES##########
+country <- 'peru'
+peru_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Peru' group by a.year, b.country")
+peru_total <-  fetch(peru_total, n=-1)
+
+peru_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Peru'")
+peru_total <-  fetch(peru_total, n=-1)
+
+###Extrae nombres y crea variables
+peru_total$primer_nombre <- sapply(strsplit(peru_total$name, " "), "[", 1)
+peru_total$segundo_nombre <- sapply(strsplit(peru_total$name, " "), "[", 2)
+
+##Extrae las iniciales
+peru_total$primera_inicial <- paste(substr(peru_total$primer_nombre, 1, 1),'.',sep="")
+peru_total$segunda_inicial <- paste(substr(peru_total$segundo_nombre, 1, 1),'.',sep="")
+peru_total$segunda_inicial[peru_total$segunda_inicial=='NA.'] <- NA
+
+
+######CALCULA PROBA#####
+nombres <- unique(peru_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+str(nombres_prob)
+peru_total_genero <- left_join(peru_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+peru_total_genero_red <- peru_total_genero[c(2,4,5,6,7,8,9,10,12)]
+peru_total_genero_red <- unique(peru_total_genero_red )
+
+###Tablas resumen
+table(peru_total_genero_red$gender, peru_total_genero_red$year)
+
+
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='genero_peru', value=peru_total_genero)
+dbListTables(sci_ibero)
+
+cantidades_peru <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_peru GROUP BY year, gender")
+cantidades_peru <-  fetch(cantidades_peru, n=-1)
+View(cantidades_peru)
+
+
+###consulta####
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_peru_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_peru WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_peru_con_autor <-  fetch(cantidades_peru_con_autor, n=-1)
+cantidades_peru_con_autor
 
 
 
