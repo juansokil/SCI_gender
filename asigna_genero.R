@@ -25,7 +25,7 @@ sci_ibero
 ####CONSULTA PARA VER LAS CANTIDADES POR PAIS
 cantidades_por_pais<- dbSendQuery(sci_ibero, "select b.country, a.year, count(distinct a.ut) as cant from article a, author_address b where a.ut=b.ut group by b.country, a.year order by cant desc")
 cantidades_por_pais <-  fetch(cantidades_por_pais, n=-1)
-
+View(cantidades_por_pais)
 #############TOTALES##############
 author_address_gender<- dbSendQuery(sci_ibero, "select a.ut, a.order, a.name, a.surname, a.country from author_address a where country='Argentina' or country='Chile' or country='Uruguay' or country='Paraguay' or country='Peru' or country='Brazil'")
 author_address_gender <-  fetch(author_address_gender, n=-1)
@@ -273,11 +273,11 @@ dbListTables(sci_ibero)
 
 cantidades_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_chile GROUP BY year, gender")
 cantidades_chile <-  fetch(cantidades_chile, n=-1)
-cantidades_chile
+View(cantidades_chile)
 
 cantidades_genero_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_chile GROUP BY year, gender")
 cantidades_genero_chile <-  fetch(cantidades_genero_chile, n=-1)
-cantidades_genero_chile
+View(cantidades_genero_chile)
 
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
@@ -536,4 +536,82 @@ View(cantidades_genero_colombia)
 cantidades_colombia_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_colombia WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_colombia_con_autor <-  fetch(cantidades_colombia_con_autor, n=-1)
 cantidades_colombia_con_autor
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####PAISES##########
+country <- 'mexico'
+mexico_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Mexico' group by a.year, b.country")
+mexico_total <-  fetch(mexico_total, n=-1)
+View(mexico_total)
+
+mexico_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Mexico'")
+mexico_total <-  fetch(mexico_total, n=-1)
+
+###Extrae nombres y crea variables
+mexico_total$primer_nombre <- sapply(strsplit(mexico_total$name, " "), "[", 1)
+mexico_total$segundo_nombre <- sapply(strsplit(mexico_total$name, " "), "[", 2)
+
+##Extrae las iniciales
+mexico_total$primera_inicial <- paste(substr(mexico_total$primer_nombre, 1, 1),'.',sep="")
+mexico_total$segunda_inicial <- paste(substr(mexico_total$segundo_nombre, 1, 1),'.',sep="")
+mexico_total$segunda_inicial[mexico_total$segunda_inicial=='NA.'] <- NA
+
+
+######CALCULA PROBA#####
+nombres <- unique(mexico_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+str(nombres_prob)
+mexico_total_genero <- left_join(mexico_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+mexico_total_genero_red <- mexico_total_genero[c(2,4,5,6,7,8,9,10,12)]
+mexico_total_genero_red <- unique(mexico_total_genero_red )
+
+###Tablas resumen
+table(mexico_total_genero_red$gender, mexico_total_genero_red$year)
+
+
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='genero_mexico', value=mexico_total_genero)
+dbListTables(sci_ibero)
+
+cantidades_mexico <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_mexico GROUP BY year, gender")
+cantidades_mexico <-  fetch(cantidades_mexico, n=-1)
+View(cantidades_mexico)
+
+cantidades_genero_mexico <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_mexico GROUP BY year, gender")
+cantidades_genero_mexico <-  fetch(cantidades_genero_mexico, n=-1)
+View(cantidades_genero_mexico)
+
+
+###consulta####
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_mexico_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_mexico WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_mexico_con_autor <-  fetch(cantidades_mexico_con_autor, n=-1)
+cantidades_mexico_con_autor
+
+
+
+
+
+
+
+
+
+
 
