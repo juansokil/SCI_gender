@@ -51,9 +51,8 @@ nombres_prob <- nombres_prob[c(1,3,4)]
 
 ####Esta tabla es la general, es el listado de todos los nombres
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='genero', value=nombres_prob)
+dbWriteTable(sci_ibero, name='temp_genero', value=nombres_prob)
 dbListTables(sci_ibero)
-
 
 
 #####PAISES##########
@@ -87,7 +86,7 @@ argentina_total_genero_red <- argentina_total_genero[c(2,4,5,6,7,8,9,10,12)]
 argentina_total_genero_red <- unique(argentina_total_genero_red )
 
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='genero_argentina', value=argentina_total_genero)
+dbWriteTable(sci_ibero, name='TEMP_genero_argentina', value=argentina_total_genero)
 dbListTables(sci_ibero)
 
 
@@ -105,8 +104,6 @@ cantidades_genero_argentina
 cantidades_argentina_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_argentina WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_argentina_con_autor <-  fetch(cantidades_argentina_con_autor, n=-1)
 cantidades_argentina_con_autor
-
-
 
 
 #####PAISES##########
@@ -140,7 +137,7 @@ mexico_total_genero_red <- mexico_total_genero[c(2,4,5,6,7,8,9,10,12)]
 mexico_total_genero_red <- unique(mexico_total_genero_red )
 
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='genero_mexico', value=mexico_total_genero)
+dbWriteTable(sci_ibero, name='TEMP_genero_mexico', value=mexico_total_genero)
 dbListTables(sci_ibero)
 
 
@@ -608,6 +605,59 @@ cantidades_mexico_con_autor
 
 
 
+
+
+
+
+#####PAISES##########
+country <- 'cuba'
+cuba_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Cuba' group by a.year, b.country")
+cuba_total <-  fetch(cuba_total, n=-1)
+
+cuba_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Cuba'")
+cuba_total <-  fetch(cuba_total, n=-1)
+
+###Extrae nombres y crea variables
+cuba_total$primer_nombre <- sapply(strsplit(cuba_total$name, " "), "[", 1)
+cuba_total$segundo_nombre <- sapply(strsplit(cuba_total$name, " "), "[", 2)
+
+
+##Extrae las iniciales
+cuba_total$primera_inicial <- paste(substr(cuba_total$primer_nombre, 1, 1),'.',sep="")
+cuba_total$segunda_inicial <- paste(substr(cuba_total$segundo_nombre, 1, 1),'.',sep="")
+cuba_total$segunda_inicial[cuba_total$segunda_inicial=='NA.'] <- NA
+
+######CALCULA PROBA#####
+nombres <- unique(cuba_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+cuba_total_genero <- left_join(cuba_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+cuba_total_genero_red <- cuba_total_genero[c(2,4,5,6,7,8,9,10,12)]
+cuba_total_genero_red <- unique(cuba_total_genero_red )
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='TEMP_genero_cuba', value=cuba_total_genero)
+dbListTables(sci_ibero)
+
+
+cantidades_cuba <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_cuba GROUP BY year, gender")
+cantidades_cuba <-  fetch(cantidades_cuba, n=-1)
+cantidades_cuba
+
+cantidades_genero_cuba <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_cuba GROUP BY year, gender")
+cantidades_genero_cuba <-  fetch(cantidades_genero_cuba, n=-1)
+cantidades_genero_cuba
+
+
+###consulta####
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_cuba_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_cuba WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_cuba_con_autor <-  fetch(cantidades_cuba_con_autor, n=-1)
+cantidades_cuba_con_autor
 
 
 
