@@ -51,8 +51,10 @@ nombres_prob <- nombres_prob[c(1,3,4)]
 
 ####Esta tabla es la general, es el listado de todos los nombres
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='temp_genero', value=nombres_prob)
+dbWriteTable(sci_ibero, name='TEMP_genero', value=nombres_prob)
 dbListTables(sci_ibero)
+
+
 
 
 #####PAISES##########
@@ -90,20 +92,294 @@ dbWriteTable(sci_ibero, name='TEMP_genero_argentina', value=argentina_total_gene
 dbListTables(sci_ibero)
 
 
-cantidades_argentina <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_argentina GROUP BY year, gender")
-cantidades_argentina <-  fetch(cantidades_argentina, n=-1)
-cantidades_argentina
+cantidades_genero_argentina_publ <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_argentina GROUP BY year, gender")
+cantidades_genero_argentina_publ <-  fetch(cantidades_genero_argentina_publ, n=-1)
+variable <- 'cantidades_genero_publ'
+cantidades_genero_argentina_publ <- cbind(country,variable,cantidades_genero_argentina_publ)
 
-cantidades_genero_argentina <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_argentina GROUP BY year, gender")
-cantidades_genero_argentina <-  fetch(cantidades_genero_argentina, n=-1)
-cantidades_genero_argentina
+cantidades_genero_argentina_pers <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_argentina GROUP BY year, gender")
+cantidades_genero_argentina_pers <-  fetch(cantidades_genero_argentina_pers, n=-1)
+variable <- 'cantidades_genero_pers'
+cantidades_genero_argentina_pers <- cbind(country,variable,cantidades_genero_argentina_pers)
 
-
-###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
-cantidades_argentina_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_argentina WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_argentina_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_argentina WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_argentina_con_autor <-  fetch(cantidades_argentina_con_autor, n=-1)
-cantidades_argentina_con_autor
+variable <- 'cantidades_con_autor'
+cantidades_argentina_con_autor <- cbind(country,variable,cantidades_argentina_con_autor)
+
+
+
+
+
+#####PAISES##########
+country <- 'bolivia'
+bolivia_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Bolivia' group by a.year, b.country")
+bolivia_total <-  fetch(bolivia_total, n=-1)
+
+bolivia_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Bolivia'")
+bolivia_total <-  fetch(bolivia_total, n=-1)
+
+###Extrae nombres y crea variables
+bolivia_total$primer_nombre <- sapply(strsplit(bolivia_total$name, " "), "[", 1)
+bolivia_total$segundo_nombre <- sapply(strsplit(bolivia_total$name, " "), "[", 2)
+
+
+##Extrae las iniciales
+bolivia_total$primera_inicial <- paste(substr(bolivia_total$primer_nombre, 1, 1),'.',sep="")
+bolivia_total$segunda_inicial <- paste(substr(bolivia_total$segundo_nombre, 1, 1),'.',sep="")
+bolivia_total$segunda_inicial[bolivia_total$segunda_inicial=='NA.'] <- NA
+
+######CALCULA PROBA#####
+nombres <- unique(bolivia_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+bolivia_total_genero <- left_join(bolivia_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+bolivia_total_genero_red <- bolivia_total_genero[c(2,4,5,6,7,8,9,10,12)]
+bolivia_total_genero_red <- unique(bolivia_total_genero_red )
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='TEMP_genero_bolivia', value=bolivia_total_genero)
+dbListTables(sci_ibero)
+
+cantidades_genero_bolivia_publ <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_bolivia GROUP BY year, gender")
+cantidades_genero_bolivia_publ <-  fetch(cantidades_genero_bolivia_publ, n=-1)
+variable <- 'cantidades_genero_publ'
+cantidades_genero_bolivia_publ <- cbind(country,variable,cantidades_genero_bolivia_publ)
+
+cantidades_genero_bolivia_pers <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_bolivia GROUP BY year, gender")
+cantidades_genero_bolivia_pers <-  fetch(cantidades_genero_bolivia_pers, n=-1)
+variable <- 'cantidades_genero_pers'
+cantidades_genero_bolivia_pers <- cbind(country,variable,cantidades_genero_bolivia_pers)
+
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_bolivia_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_bolivia WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_bolivia_con_autor <-  fetch(cantidades_bolivia_con_autor, n=-1)
+variable <- 'cantidades_con_autor'
+cantidades_bolivia_con_autor <- cbind(country,variable,cantidades_bolivia_con_autor)
+
+
+
+
+
+#####PAISES##########
+country <- 'chile'
+chile_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Chile' group by a.year, b.country")
+chile_total <-  fetch(chile_total, n=-1)
+
+chile_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Chile'")
+chile_total <-  fetch(chile_total, n=-1)
+
+###Extrae nombres y crea variables
+chile_total$primer_nombre <- sapply(strsplit(chile_total$name, " "), "[", 1)
+chile_total$segundo_nombre <- sapply(strsplit(chile_total$name, " "), "[", 2)
+
+
+##Extrae las iniciales
+chile_total$primera_inicial <- paste(substr(chile_total$primer_nombre, 1, 1),'.',sep="")
+chile_total$segunda_inicial <- paste(substr(chile_total$segundo_nombre, 1, 1),'.',sep="")
+chile_total$segunda_inicial[chile_total$segunda_inicial=='NA.'] <- NA
+
+######CALCULA PROBA#####
+nombres <- unique(chile_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+chile_total_genero <- left_join(chile_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+chile_total_genero_red <- chile_total_genero[c(2,4,5,6,7,8,9,10,12)]
+chile_total_genero_red <- unique(chile_total_genero_red )
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='TEMP_genero_chile', value=chile_total_genero)
+dbListTables(sci_ibero)
+
+cantidades_genero_chile_publ <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_chile GROUP BY year, gender")
+cantidades_genero_chile_publ <-  fetch(cantidades_genero_chile_publ, n=-1)
+variable <- 'cantidades_genero_publ'
+cantidades_genero_chile_publ <- cbind(country,variable,cantidades_genero_chile_publ)
+
+cantidades_genero_chile_pers <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_chile GROUP BY year, gender")
+cantidades_genero_chile_pers <-  fetch(cantidades_genero_chile_pers, n=-1)
+variable <- 'cantidades_genero_pers'
+cantidades_genero_chile_pers <- cbind(country,variable,cantidades_genero_chile_pers)
+
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_chile_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_chile WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_chile_con_autor <-  fetch(cantidades_chile_con_autor, n=-1)
+variable <- 'cantidades_con_autor'
+cantidades_chile_con_autor <- cbind(country,variable,cantidades_chile_con_autor)
+
+
+
+
+
+
+
+
+
+
+
+#####PAISES##########
+country <- 'colombia'
+colombia_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Colombia' group by a.year, b.country")
+colombia_total <-  fetch(colombia_total, n=-1)
+
+colombia_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Colombia'")
+colombia_total <-  fetch(colombia_total, n=-1)
+
+###Extrae nombres y crea variables
+colombia_total$primer_nombre <- sapply(strsplit(colombia_total$name, " "), "[", 1)
+colombia_total$segundo_nombre <- sapply(strsplit(colombia_total$name, " "), "[", 2)
+
+
+##Extrae las iniciales
+colombia_total$primera_inicial <- paste(substr(colombia_total$primer_nombre, 1, 1),'.',sep="")
+colombia_total$segunda_inicial <- paste(substr(colombia_total$segundo_nombre, 1, 1),'.',sep="")
+colombia_total$segunda_inicial[colombia_total$segunda_inicial=='NA.'] <- NA
+
+######CALCULA PROBA#####
+nombres <- unique(colombia_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+colombia_total_genero <- left_join(colombia_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+colombia_total_genero_red <- colombia_total_genero[c(2,4,5,6,7,8,9,10,12)]
+colombia_total_genero_red <- unique(colombia_total_genero_red )
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='TEMP_genero_colombia', value=colombia_total_genero)
+dbListTables(sci_ibero)
+
+cantidades_genero_colombia_publ <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_colombia GROUP BY year, gender")
+cantidades_genero_colombia_publ <-  fetch(cantidades_genero_colombia_publ, n=-1)
+variable <- 'cantidades_genero_publ'
+cantidades_genero_colombia_publ <- cbind(country,variable,cantidades_genero_colombia_publ)
+
+cantidades_genero_colombia_pers <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_colombia GROUP BY year, gender")
+cantidades_genero_colombia_pers <-  fetch(cantidades_genero_colombia_pers, n=-1)
+variable <- 'cantidades_genero_pers'
+cantidades_genero_colombia_pers <- cbind(country,variable,cantidades_genero_colombia_pers)
+
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_colombia_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_colombia WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_colombia_con_autor <-  fetch(cantidades_colombia_con_autor, n=-1)
+variable <- 'cantidades_con_autor'
+cantidades_colombia_con_autor <- cbind(country,variable,cantidades_colombia_con_autor)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################JUNTA DATOS###################
+
+cantidades_genero_publ <- rbind (cantidades_genero_argentina_publ, cantidades_genero_bolivia_publ, cantidades_genero_chile_publ, cantidades_genero_colombia_publ)
+cantidades_genero_pers <- rbind (cantidades_genero_argentina_pers, cantidades_genero_bolivia_pers, cantidades_genero_chile_pers, cantidades_genero_colombia_pers)
+cantidades_con_autor <- rbind(cantidades_argentina_con_autor,cantidades_bolivia_con_autor,cantidades_chile_con_autor, cantidades_colombia_con_autor)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #####PAISES##########
@@ -141,18 +417,18 @@ dbWriteTable(sci_ibero, name='TEMP_genero_mexico', value=mexico_total_genero)
 dbListTables(sci_ibero)
 
 
-cantidades_mexico <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_mexico GROUP BY year, gender")
+cantidades_mexico <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_mexico GROUP BY year, gender")
 cantidades_mexico <-  fetch(cantidades_mexico, n=-1)
 cantidades_mexico
 
-cantidades_genero_mexico <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_mexico GROUP BY year, gender")
+cantidades_genero_mexico <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_mexico GROUP BY year, gender")
 cantidades_genero_mexico <-  fetch(cantidades_genero_mexico, n=-1)
 cantidades_genero_mexico
 
 
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
-cantidades_mexico_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_mexico WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_mexico_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_mexico WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_mexico_con_autor <-  fetch(cantidades_mexico_con_autor, n=-1)
 cantidades_mexico_con_autor
 
@@ -195,22 +471,22 @@ brazil_total_genero_red <- brazil_total_genero[c(2,4,5,6,7,8,9,10,12)]
 brazil_total_genero_red <- unique(brazil_total_genero_red )
 
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='genero_brazil', value=brazil_total_genero)
+dbWriteTable(sci_ibero, name='TEMP_genero_brazil', value=brazil_total_genero)
 dbListTables(sci_ibero)
 
 
-cantidades_brazil <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_brazil GROUP BY year, gender")
+cantidades_brazil <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_brazil GROUP BY year, gender")
 cantidades_brazil <-  fetch(cantidades_brazil, n=-1)
 cantidades_brazil
 
-cantidades_genero_brazil <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_brazil GROUP BY year, gender")
+cantidades_genero_brazil <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_brazil GROUP BY year, gender")
 cantidades_genero_brazil <-  fetch(cantidades_genero_brazil, n=-1)
 cantidades_genero_brazil
 
 
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
-cantidades_brazil_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_brazil WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_brazil_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_brazil WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_brazil_con_autor <-  fetch(cantidades_brazil_con_autor, n=-1)
 cantidades_brazil_con_autor
 
@@ -265,20 +541,20 @@ table(chile_total_genero_red$gender, chile_total_genero_red$year)
 
 
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='genero_chile', value=chile_total_genero)
+dbWriteTable(sci_ibero, name='TEMP_genero_chile', value=chile_total_genero)
 dbListTables(sci_ibero)
 
-cantidades_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_chile GROUP BY year, gender")
+cantidades_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_chile GROUP BY year, gender")
 cantidades_chile <-  fetch(cantidades_chile, n=-1)
 View(cantidades_chile)
 
-cantidades_genero_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_chile GROUP BY year, gender")
+cantidades_genero_chile <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_chile GROUP BY year, gender")
 cantidades_genero_chile <-  fetch(cantidades_genero_chile, n=-1)
 View(cantidades_genero_chile)
 
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
-cantidades_chile_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_chile WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_chile_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_chile WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_chile_con_autor <-  fetch(cantidades_chile_con_autor, n=-1)
 cantidades_chile_con_autor
 
@@ -323,16 +599,16 @@ table(uruguay_total_genero_red$gender, uruguay_total_genero_red$year)
 
 
 ####Pega la tabla al sql
-dbWriteTable(sci_ibero, name='genero_uruguay', value=uruguay_total_genero)
+dbWriteTable(sci_ibero, name='TEMP_genero_uruguay', value=uruguay_total_genero)
 dbListTables(sci_ibero)
 
-cantidades_uruguay <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM genero_uruguay GROUP BY year, gender")
+cantidades_uruguay <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_uruguay GROUP BY year, gender")
 cantidades_uruguay <-  fetch(cantidades_uruguay, n=-1)
 View(cantidades_uruguay)
 
 
 
-cantidades_genero_uruguay <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM genero_uruguay GROUP BY year, gender")
+cantidades_genero_uruguay <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_uruguay GROUP BY year, gender")
 cantidades_genero_uruguay <-  fetch(cantidades_genero_uruguay, n=-1)
 cantidades_genero_uruguay
 
@@ -340,7 +616,7 @@ cantidades_genero_uruguay
 
 ###consulta####
 ####identifica la cantidad de articulos que tiene al menos un autor identificado###
-cantidades_uruguay_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM genero_uruguay WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_uruguay_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_uruguay WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
 cantidades_uruguay_con_autor <-  fetch(cantidades_uruguay_con_autor, n=-1)
 cantidades_uruguay_con_autor
 
@@ -662,6 +938,65 @@ cantidades_cuba_con_autor
 
 
 
+
+
+#####PAISES##########
+country <- 'bolivia'
+bolivia_total <- dbSendQuery(sci_ibero, "select a.year, b.country, count(distinct a.ut) from article a, author_address b where a.ut=b.ut and b.country='Bolivia' group by a.year, b.country")
+bolivia_total <-  fetch(bolivia_total, n=-1)
+
+bolivia_total <- dbSendQuery(sci_ibero, "select a.ut, b.year, a.order, a.name, a.surname, a.country from author_address a, article b where a.ut=b.ut and country='Bolivia'")
+bolivia_total <-  fetch(bolivia_total, n=-1)
+
+###Extrae nombres y crea variables
+bolivia_total$primer_nombre <- sapply(strsplit(bolivia_total$name, " "), "[", 1)
+bolivia_total$segundo_nombre <- sapply(strsplit(bolivia_total$name, " "), "[", 2)
+
+##Extrae las iniciales
+bolivia_total$primera_inicial <- paste(substr(bolivia_total$primer_nombre, 1, 1),'.',sep="")
+bolivia_total$segunda_inicial <- paste(substr(bolivia_total$segundo_nombre, 1, 1),'.',sep="")
+bolivia_total$segunda_inicial[bolivia_total$segunda_inicial=='NA.'] <- NA
+
+
+######CALCULA PROBA#####
+nombres <- unique(bolivia_total$primer_nombre)
+nombres_prob <- gender(nombres)
+nombres_prob <- nombres_prob[c(1,3,4)]
+
+####DATOS JUNTOS
+str(nombres_prob)
+bolivia_total_genero <- left_join(bolivia_total, nombres_prob, by = c("primer_nombre"="name"))
+
+###UNICOS###
+bolivia_total_genero_red <- bolivia_total_genero[c(2,4,5,6,7,8,9,10,12)]
+bolivia_total_genero_red <- unique(bolivia_total_genero_red )
+
+###Tablas resumen
+table(bolivia_total_genero_red$gender, bolivia_total_genero_red$year)
+
+
+
+####Pega la tabla al sql
+dbWriteTable(sci_ibero, name='TEMP_genero_bolivia', value=bolivia_total_genero)
+dbListTables(sci_ibero)
+
+cantidades_bolivia <- dbSendQuery(sci_ibero, "SELECT year, gender, COUNT(DISTINCT ut)  FROM TEMP_genero_bolivia GROUP BY year, gender")
+cantidades_bolivia <-  fetch(cantidades_bolivia, n=-1)
+View(cantidades_bolivia)
+
+
+
+cantidades_genero_bolivia <- dbSendQuery(sci_ibero, "SELECT year, gender, count(distinct surname, name)  FROM TEMP_genero_bolivia GROUP BY year, gender")
+cantidades_genero_bolivia <-  fetch(cantidades_genero_bolivia, n=-1)
+cantidades_genero_bolivia
+
+
+
+###consulta####
+####identifica la cantidad de articulos que tiene al menos un autor identificado###
+cantidades_bolivia_con_autor <- dbSendQuery(sci_ibero, "SELECT COUNT(DISTINCT ut) , YEAR FROM TEMP_genero_bolivia WHERE gender =  'male' OR gender =  'female' GROUP BY YEAR")
+cantidades_bolivia_con_autor <-  fetch(cantidades_bolivia_con_autor, n=-1)
+cantidades_bolivia_con_autor
 
 
 
