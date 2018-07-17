@@ -13,7 +13,10 @@ library(dplyr)
 library(gender)
 ##install.packages("dplyr")
 library(dplyr)
+##install.packages("plotly")
+library(plotly)
 
+####RUTA####
 setwd("~/SCI_genero")
 source('./00-sql.r', encoding = 'latin1')
 
@@ -1588,5 +1591,18 @@ totales <- subset(totales, (year >=minimo & year <=maximo))
 
 Totales_Genero <- totales[, c(1:3,17,6,9,12,15)]
 Totales_Genero <- subset(Totales_Genero, (cant_con_autor>0))
+Totales_Genero$ratio_autor_fem <- Totales_Genero$cant_genero_pers_female/(Totales_Genero$cant_genero_pers_male+Totales_Genero$cant_genero_pers_female)
 
+
+
+
+
+#### TEST#####
 write.csv(Totales_Genero,'genero.csv')
+plot_ly(Totales_Genero, x = ~year, y = ~ratio_autor_fem, type = 'scatter',  color = ~country, mode = 'lines')
+
+
+
+
+
+
