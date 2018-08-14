@@ -14,7 +14,10 @@ library(plotly)
 library(reshape)
 
 
-source('./00-sql.r', encoding = 'latin1')
+source('C:/Users/observatorio/Documents/SCI_genero/00-sql.r', encoding = 'latin1')
+
+
+
 
 ###chequear conexion###
 scopus_ibero
@@ -968,17 +971,37 @@ total <- rbind(brazil,spain,argentina,mexico,portugal,chile,
                jamaica,nicaragua,panama,paraguay,peru,puerto_rico, 
                dominican_republic,trinidad_and_tobago,uruguay,venezuela)
 
-View(total)
-
 plot_ly(total, x = ~year, y = ~ratio_colab, type = 'scatter',  color = ~country, mode = 'lines')
+
+
+
+###REGIONALES###
+
+
+americalatina_total <- dbSendQuery(scopus_ibero, "select year, count(distinct ut) from ut_year_country where (country='Argentina'  or country='Barbados' or country='Bolivia' or country='Brazil' or country='Chile' or country='Colombia' or country='Costa Rica' or country='Cuba' or country='Ecuador' or country='El Salvador' or country='Guatemala' or country='Honduras' or country='Jamaica' or country='Mexico' or country='Nicaragua' or country='Panama' or country='Paraguay' or country='Peru' or country='Uruguay' or country='Venezuela') group by year")
+americalatina_total <-  fetch(americalatina_total, n=-1)
+
+americalatina_total_disc <- dbSendQuery(scopus_ibero, "select a.year, b.area_desc, count(distinct a.ut) as cant  from scopus.discXrevista b, scopus_ibero.ut_year_country a where b.name=a.pub_name and  (a.country='Argentina'  or a.country='Barbados' or a.country='Bolivia' or a.country='Brazil' or a.country='Chile' or a.country='Colombia' or a.country='Costa Rica' or a.country='Cuba' or a.country='Ecuador' or a.country='El Salvador' or a.country='Guatemala' or a.country='Honduras' or a.country='Jamaica' or a.country='Mexico' or a.country='Nicaragua' or a.country='Panama' or a.country='Paraguay' or a.country='Peru' or a.country='Uruguay' or a.country='Venezuela') group by a.year, b.area_desc")
+americalatina_total_disc <-  fetch(americalatina_total_disc, n=-1)
+
+
+
+iberoamerica_total <- dbSendQuery(scopus_ibero, "select year, count(distinct ut) from ut_year_country where (country='Argentina' or country='Bolivia' or country='Brazil' or country='Chile' or country='Colombia' or country='Costa Rica' or country='Cuba' or country='Ecuador' or country='El Salvador' or country='Guatemala' or country='Honduras' or country='Mexico' or country='Nicaragua' or country='Panama' or country='Paraguay' or country='Peru' or country='Uruguay' or country='Venezuela' or country='Spain' or country='Portugal') group by year")
+iberoamerica_total <-  fetch(iberoamerica_total, n=-1)
+
+iberoamerica_total_disc <- dbSendQuery(scopus_ibero, "select a.year, b.area_desc, count(distinct a.ut) as cant  from scopus.discXrevista b, scopus_ibero.ut_year_country a where b.name=a.pub_name and  (a.country='Argentina'  or a.country='Bolivia' or a.country='Brazil' or a.country='Chile' or a.country='Colombia' or a.country='Costa Rica' or a.country='Cuba' or a.country='Ecuador' or a.country='El Salvador' or a.country='Guatemala' or a.country='Honduras' or a.country='Mexico' or a.country='Nicaragua' or a.country='Panama' or a.country='Paraguay' or a.country='Peru' or a.country='Uruguay' or a.country='Venezuela' or a.country='Spain' or a.country='Portugal') group by a.year, b.area_desc")
+iberoamerica_total_disc <-  fetch(iberoamerica_total_disc, n=-1)
+View(iberoamerica_total_disc)
+
+
+
+
+
 
 
 #setwd("~/SCI_genero")
 #setwd(".")
 #write.csv(total, 'colaboracion.csv')
-
-
-
 
 
 
