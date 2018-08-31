@@ -15,7 +15,7 @@ library(dplyr)
 library(tidyr)
 library(scales)
 library(Cairo)
-
+library(readr)
 
 
 
@@ -23,13 +23,9 @@ library(Cairo)
 
 
 ############CONSULTA PARA VER LAS CANTIDADES POR PAIS POR AÑO#################
-autorXut<- dbSendQuery(sci_ibero, "SELECT * FROM autorXut_muestra")
-autorXut <-  fetch(autorXut, n=-1)
+###Levanta datos###
 
-
-
-
-autorXut_reduce <- autorXut
+autorXut_reduce <- read_csv("./base/base.csv")
 
 
 #######################ANALISIS EXPLORATORIO###############
@@ -71,7 +67,7 @@ g<- simplify(grafo, remove.multiple = TRUE)
 
 
 #Defino distintos layouts
-#lay.kk <- layout.kamada.kawai(g, maxiter = 50 * vcount(g), kkconst = vcount(g))
+lay.kk <- layout.kamada.kawai(g, maxiter = 50 * vcount(g), kkconst = vcount(g))
 #Grafo
 
 
@@ -79,10 +75,10 @@ CairoSVG(file="plotsfinal.svg", width=11, height=8.5, family="Helvetica", points
 set.seed(1492) 
 grafo.kk <- plot.igraph(g, 
                         layout=lay.kk, 
-                        vertex.size=rescale(degree(g), 1, max(degree(g)), 1, 50),
+                        vertex.size=rescale(degree(g), 1, max(degree(g)), 1, 5),
                         vertex.label.cex=0.20,
-                        vertex.label.color="black", 
-                        edge.width=E(g)$weight*0.50,
+                        vertex.label.color="red", 
+                        edge.width=E(g)$weight*10,
                         vertex.color="lightblue",
                         vertex.shape="circle")
 dev.off()
