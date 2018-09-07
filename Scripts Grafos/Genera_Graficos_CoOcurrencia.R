@@ -22,7 +22,7 @@ library(readr)
 
 
 
-############CONSULTA PARA VER LAS CANTIDADES POR PAIS POR A�O#################
+############CONSULTA PARA VER LAS CANTIDADES POR PAIS POR AÑO#################
 ###Levanta datos###
 
 autorXut_reduce <- read_csv("./base/base.csv")
@@ -86,4 +86,43 @@ dev.off()
 
 
 
+
+####Agrega el atributo grado###
+g <- set_vertex_attr(g, "Grado", value = degree(g))
+####Agrega intermediacion####
+g <- set_vertex_attr(g, "Intermediacion", value = betweenness(g, directed = FALSE))
+
+
+
+#####GUARDA EL GRAFO#####
 write_graph(g, 'grafo_gephi', format = "gml")
+
+#####CARGA EL GRAFO#####
+g <- read_graph('./grafo_gephi_completo.gml', format = "gml")
+
+
+
+#####CARACTERISTICAS ADICIONALES DEL GRAFO######
+is.simple(g)
+is.connected(g, mode="weak")
+diameter(g)
+
+#Densidad del grafo
+graph.density(g)
+
+#Red de mundo pequeño
+power.law.fit(degree(g))
+
+#Grados - Tamaño de vertices
+grados<-degree(g)
+# pesos de las aristas
+pesos <- E(g)$weight
+
+assortativity.degree(g)
+transitivity(g, type ="local")
+transitivity(g, type ="global")
+barplot(sort(degree(g), decreasing = T))
+
+
+
+
