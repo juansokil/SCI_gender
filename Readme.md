@@ -17,4 +17,9 @@ A partir de un csv descargado de Web Of Science (SCI) y alojado en MYSQL extrae 
 
 *SCRIPTS GRAFOS*
 
-A partir de una tabla de 2 columnas: autor y nombre de publicacion (en este caso id y ut respectivamente). Construye el input necesario (tablas de nodos y aristas) para construir un grafo de co-ocurrencias de autores en igraph(R). Finalmente lo exporta a formato svg y gephi
+A partir de una tabla de 2 columnas: autor y nombre de publicacion (en este caso id y ut respectivamente). Construye las tablas de nodos y aristas con su peso.  
+A partir de ambos dataframe construye un grafo de co-ocurrencias de autores en igraph(R), calcula metricas y posteriormente lo exporta a formato svg y gml.
+
+
+
+
