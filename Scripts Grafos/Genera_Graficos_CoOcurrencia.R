@@ -69,10 +69,6 @@ g <- set_vertex_attr(g, "Intermediacion", value = betweenness(g, directed = FALS
 #####GUARDA EL GRAFO#####
 write_graph(g, 'grafo_gephi', format = "gml")
 
-#####CARGA EL GRAFO#####
-g <- read_graph('./grafo_gephi_completo.gml', format = "gml")
-
-
 
 #####CARACTERISTICAS ADICIONALES DEL GRAFO######
 is.simple(g)
@@ -122,4 +118,15 @@ total_inter_gender <- grafo_final %>% group_by(dato_gender) %>% summarize(Mean =
 ##disc_grado_eng <- grafo_final %>% filter(dato_discprincipal == "ENG") %>% group_by(dato_gender) %>% summarize(Mean = mean(dato_grado2, na.rm=TRUE))
 ##disc_inter_eng <- grafo_final %>% filter(dato_discprincipal == "ENG")  %>% group_by(dato_gender) %>% summarize(Mean = mean(dato_interm2, na.rm=TRUE))
 
+
+
+
+#####CARGA EL GRAFO#####
+g <- read_graph('./grafo_gephi_completo.gml', format = "gml")
+
+##########################PODA DEL GRAFO######################
+####Minimum Spanning Tree###
+min_spanning_tree <- mst(g, weights = E(g)$weight)
+####Maximum Spanning Tree###
+max_spanning_tree <- mst(g, weights = 1/E(g)$weight)
 
