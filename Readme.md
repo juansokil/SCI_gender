@@ -12,6 +12,9 @@ A partir de un csv descargado de Web Of Science (SCI) y alojado en MYSQL extrae 
 2- Cantidad de publicaciones en que participan Hombres / Mujeres
 
 3- Cantidad de autores por genero sobre el total de publicaciones
+<p> <img src="https://github.com/juansokil/Scripts_RICYT/blob/master/Scripts%20Genero/00-result_genero_sci.png" width="300"> </p>
+
+
 
 ########################### 
 
