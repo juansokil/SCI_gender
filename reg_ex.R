@@ -4,7 +4,7 @@ library(Hmisc)
 library(stringr)
 
 
-scopus_ibero = dbConnect(MySQL(), user='scopus', password='sc0pus2698', dbname='scopus_ibero', host='mysql.ricyt.org')
+
 #article <- dbGetQuery(scopus_ibero, "select * from contact")
 
 ##### Extracting a String Between 2 Characters in R
@@ -53,7 +53,7 @@ getstr = function(mystring, initial.character, final.character)
 
 
 
-article2 <- dbGetQuery(scopus_ibero, "select * from mails_edu a, article b where a.ut=b.ut")
+article2 <- dbGetQuery(scopus_ibero, "select * from mails_edu a")
 article2$mail <- as.data.frame(str_extract(article2$email, '\\S+$'))
 article2$autor <- substr(article2$email,1,regexpr(";",article2$email)-1)
 article2$country <- str_extract(getstr(article2$email, '*,', '; email:'),regex("\\S+$"))
