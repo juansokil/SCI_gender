@@ -58,5 +58,7 @@ article2$mail <- as.data.frame(str_extract(article2$email, '\\S+$'))
 article2$autor <- substr(article2$email,1,regexpr(";",article2$email)-1)
 article2$country <- str_extract(getstr(article2$email, '*,', '; email:'),regex("\\S+$"))
 
+article3 <- article2[c(1,4,5,6,7,8)]
 
+write.table(article3,'base_articulos_reduce.txt',sep="\t",row.names=FALSE)
 
