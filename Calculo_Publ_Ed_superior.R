@@ -6,7 +6,8 @@ library(Hmisc)
 library(dplyr)
 library(plotly)
 library(reshape)
-
+library(dplyr)
+library(tidyr)
 
 source('C:/Users/observatorio/Documents/SCI_genero/00-sql.r', encoding = 'latin1')
 
@@ -66,7 +67,7 @@ bolivia_total <-  fetch(bolivia_total, n=-1)
 bolivia_total <- cbind(bolivia_total,country)
 names(bolivia_total)[names(bolivia_total)=="count(distinct a.ut)"] <- "total"
 
-bolivia_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Bolivia' and address like '%Univ%' group by year")
+bolivia_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Bolivia' and (address like '%Univ%' or address like '%univ%' or address like '%UMSA%' or address like '%Herb%' or address like '%herb%') group by year")
 bolivia_edsup <-  fetch(bolivia_edsup, n=-1)
 bolivia_edsup <- cbind(bolivia_edsup,country)
 names(bolivia_edsup)[names(bolivia_edsup)=="count(distinct a.ut)"] <- "ed_sup"
@@ -74,6 +75,7 @@ bolivia <- left_join(bolivia_total, bolivia_edsup, by = c("year", "country"))
 bolivia <- subset(bolivia, year >=minimo & year <=maximo)
 bolivia$ratio <- (bolivia$ed_sup / bolivia$total)*100
 
+####select *  from author_address a, article b where a.ut=b.ut and country='Bolivia' and (address NOT like '%Univ%' and address NOT like '%univ%' and address NOT like '%UMSA%' and address NOT like '%Herb%')###
 
 
 country <- 'Brazil'
@@ -135,13 +137,15 @@ costa_rica_total <-  fetch(costa_rica_total, n=-1)
 costa_rica_total <- cbind(costa_rica_total,country)
 names(costa_rica_total)[names(costa_rica_total)=="count(distinct a.ut)"] <- "total"
 
-costa_rica_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Costa Rica' and address like '%Univ%' group by year")
+costa_rica_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Costa Rica' and (address like '%Univ%' OR address like '%UCR%' OR address like '%ULACIT%' or address like '%Instituto Tecnol%' or address like '%INCAE%') group by year")
 costa_rica_edsup <-  fetch(costa_rica_edsup, n=-1)
 costa_rica_edsup <- cbind(costa_rica_edsup,country)
 names(costa_rica_edsup)[names(costa_rica_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 costa_rica <- left_join(costa_rica_total, costa_rica_edsup, by = c("year", "country"))
 costa_rica <- subset(costa_rica, year >=minimo & year <=maximo)
 costa_rica$ratio <- (costa_rica$ed_sup / costa_rica$total)*100
+
+###select * from author_address a, article b where a.ut=b.ut and country='Costa Rica' and (address NOT like '%Univ%' and address NOT like '%Univ%' AND address NOT like '%UCR%' and address NOT like '%ULACIT%')###
 
 
 
@@ -152,14 +156,13 @@ cuba_total <-  fetch(cuba_total, n=-1)
 cuba_total <- cbind(cuba_total,country)
 names(cuba_total)[names(cuba_total)=="count(distinct a.ut)"] <- "total"
 
-cuba_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Cuba' and address like '%Univ%' group by year")
+cuba_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Cuba' and (address like '%Univ%' or address like '%ENSAP%' or address like '%Escuela Nacional de Sa%' or address like '%escuela nacional%') group by year")
 cuba_edsup <-  fetch(cuba_edsup, n=-1)
 cuba_edsup <- cbind(cuba_edsup,country)
 names(cuba_edsup)[names(cuba_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 cuba <- left_join(cuba_total, cuba_edsup, by = c("year", "country"))
 cuba <- subset(cuba, year >=minimo & year <=maximo)
 cuba$ratio <- (cuba$ed_sup / cuba$total)*100
-
 
 
 country <- 'Ecuador'
@@ -169,7 +172,7 @@ ecuador_total <-  fetch(ecuador_total, n=-1)
 ecuador_total <- cbind(ecuador_total,country)
 names(ecuador_total)[names(ecuador_total)=="count(distinct a.ut)"] <- "total"
 
-ecuador_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Ecuador' and address like '%Univ%' group by year")
+ecuador_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Ecuador' and (address like '%Univ%' or address like '%Escuela Sup%' or address like '%Escuela Polit%') group by year")
 ecuador_edsup <-  fetch(ecuador_edsup, n=-1)
 ecuador_edsup <- cbind(ecuador_edsup,country)
 names(ecuador_edsup)[names(ecuador_edsup)=="count(distinct a.ut)"] <- "ed_sup"
@@ -196,6 +199,7 @@ el_salvador <- subset(el_salvador, year >=minimo & year <=maximo)
 el_salvador$ratio <- (el_salvador$ed_sup / el_salvador$total)*100
 
 
+
 country <- 'Spain'
 
 spain_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and country='Spain' group by year")
@@ -220,15 +224,13 @@ guatemala_total <-  fetch(guatemala_total, n=-1)
 guatemala_total <- cbind(guatemala_total,country)
 names(guatemala_total)[names(guatemala_total)=="count(distinct a.ut)"] <- "total"
 
-guatemala_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Guatemala' and address like '%Univ%' group by year")
+guatemala_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Guatemala' and (address like '%Univ%' or address like '%Escuela%' group by year")
 guatemala_edsup <-  fetch(guatemala_edsup, n=-1)
 guatemala_edsup <- cbind(guatemala_edsup,country)
 names(guatemala_edsup)[names(guatemala_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 guatemala <- left_join(guatemala_total, guatemala_edsup, by = c("year", "country"))
 guatemala <- subset(guatemala, year >=minimo & year <=maximo)
 guatemala$ratio <- (guatemala$ed_sup / guatemala$total)*100
-
-
 
 country <- 'Honduras'
 
@@ -237,13 +239,14 @@ honduras_total <-  fetch(honduras_total, n=-1)
 honduras_total <- cbind(honduras_total,country)
 names(honduras_total)[names(honduras_total)=="count(distinct a.ut)"] <- "total"
 
-honduras_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Honduras' and address like '%Univ%' group by year")
+honduras_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Honduras' and (address like '%Univ%' OR address like '%Escuela%') group by year")
 honduras_edsup <-  fetch(honduras_edsup, n=-1)
 honduras_edsup <- cbind(honduras_edsup,country)
 names(honduras_edsup)[names(honduras_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 honduras <- left_join(honduras_total, honduras_edsup, by = c("year", "country"))
 honduras <- subset(honduras, year >=minimo & year <=maximo)
 honduras$ratio <- (honduras$ed_sup / honduras$total)*100
+
 
 
 country <- 'Mexico'
@@ -253,14 +256,13 @@ mexico_total <-  fetch(mexico_total, n=-1)
 mexico_total <- cbind(mexico_total,country)
 names(mexico_total)[names(mexico_total)=="count(distinct a.ut)"] <- "total"
 
-mexico_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Mexico' and address like '%Univ%' group by year")
+mexico_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Mexico' and (address like '%Univ%'  or address like '%IPN%'   or address like '%Instituto Politécnico%'  or address like '%Instituto Polit%' or address like '%Inst. Polit%'  or address like '%Tecnológico de%'   or address like '%Tecnologico de%' or address like '%Inst. Tecnol%' or address like '%Instituto Tecn%' or address like '%Escuela%' or address like '%UNAM%'or address like '%CINVESTAV%' or address like '%ITESM%'  or address like '%Institute de%' or address like '%Institute of Technology%') group by year")
 mexico_edsup <-  fetch(mexico_edsup, n=-1)
 mexico_edsup <- cbind(mexico_edsup,country)
 names(mexico_edsup)[names(mexico_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 mexico <- left_join(mexico_total, mexico_edsup, by = c("year", "country"))
 mexico <- subset(mexico, year >=minimo & year <=maximo)
 mexico$ratio <- (mexico$ed_sup / mexico$total)*100
-
 
 
 country <- 'Nicaragua'
@@ -270,7 +272,7 @@ nicaragua_total <-  fetch(nicaragua_total, n=-1)
 nicaragua_total <- cbind(nicaragua_total,country)
 names(nicaragua_total)[names(nicaragua_total)=="count(distinct a.ut)"] <- "total"
 
-nicaragua_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Nicaragua' and address like '%Univ%' group by year")
+nicaragua_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Nicaragua' and (address like '%Univ%' or address like '%INCAE%' or address like '%univ%') group by year")
 nicaragua_edsup <-  fetch(nicaragua_edsup, n=-1)
 nicaragua_edsup <- cbind(nicaragua_edsup,country)
 names(nicaragua_edsup)[names(nicaragua_edsup)=="count(distinct a.ut)"] <- "ed_sup"
@@ -297,7 +299,6 @@ panama <- subset(panama, year >=minimo & year <=maximo)
 panama$ratio <- (panama$ed_sup / panama$total)*100
 
 
-
 country <- 'Paraguay'
 
 paraguay_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and country='Paraguay' group by year")
@@ -313,9 +314,6 @@ paraguay <- left_join(paraguay_total, paraguay_edsup, by = c("year", "country"))
 paraguay <- subset(paraguay, year >=minimo & year <=maximo)
 paraguay$ratio <- (paraguay$ed_sup / paraguay$total)*100
 
-
-
-
 country <- 'Peru'
 
 peru_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and country='Peru' group by year")
@@ -323,16 +321,13 @@ peru_total <-  fetch(peru_total, n=-1)
 peru_total <- cbind(peru_total,country)
 names(peru_total)[names(peru_total)=="count(distinct a.ut)"] <- "total"
 
-peru_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Peru' and address like '%Univ%' group by year")
+peru_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Peru' and (address like '%Univ%' or address like '%CIP%') group by year")
 peru_edsup <-  fetch(peru_edsup, n=-1)
 peru_edsup <- cbind(peru_edsup,country)
 names(peru_edsup)[names(peru_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 peru <- left_join(peru_total, peru_edsup, by = c("year", "country"))
 peru <- subset(peru, year >=minimo & year <=maximo)
 peru$ratio <- (peru$ed_sup / peru$total)*100
-
-
-
 
 country <- 'Portugal'
 
@@ -352,7 +347,6 @@ portugal$ratio <- (portugal$ed_sup / portugal$total)*100
 
 
 
-
 country <- 'Dominican Republic'
 
 dominican_republic_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and country='Dominican Republic' group by year")
@@ -360,13 +354,14 @@ dominican_republic_total <-  fetch(dominican_republic_total, n=-1)
 dominican_republic_total <- cbind(dominican_republic_total,country)
 names(dominican_republic_total)[names(dominican_republic_total)=="count(distinct a.ut)"] <- "total"
 
-dominican_republic_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Dominican Republic' and address like '%Univ%' group by year")
+dominican_republic_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Dominican Republic' and (address like '%Univ%' OR address like '%UNIBE%' OR address like '%INTEC%'OR address like '%Instituto Tecn%' OR address like '%Colegio%' OR address like '%instituto tecn%') group by year")
 dominican_republic_edsup <-  fetch(dominican_republic_edsup, n=-1)
 dominican_republic_edsup <- cbind(dominican_republic_edsup,country)
 names(dominican_republic_edsup)[names(dominican_republic_edsup)=="count(distinct a.ut)"] <- "ed_sup"
 dominican_republic <- left_join(dominican_republic_total, dominican_republic_edsup, by = c("year", "country"))
 dominican_republic <- subset(dominican_republic, year >=minimo & year <=maximo)
 dominican_republic$ratio <- (dominican_republic$ed_sup / dominican_republic$total)*100
+
 
 
 
@@ -377,7 +372,7 @@ uruguay_total <-  fetch(uruguay_total, n=-1)
 uruguay_total <- cbind(uruguay_total,country)
 names(uruguay_total)[names(uruguay_total)=="count(distinct a.ut)"] <- "total"
 
-uruguay_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Uruguay' and address like '%Univ%' group by year")
+uruguay_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Uruguay' and (address like '%Univ%' or address like '%UDELAR%' or address like '%UdeLAR%' or address like '%Facultad %') group by year")
 uruguay_edsup <-  fetch(uruguay_edsup, n=-1)
 uruguay_edsup <- cbind(uruguay_edsup,country)
 names(uruguay_edsup)[names(uruguay_edsup)=="count(distinct a.ut)"] <- "ed_sup"
@@ -387,7 +382,6 @@ uruguay$ratio <- (uruguay$ed_sup / uruguay$total)*100
 
 
 
-
 country <- 'Venezuela'
 
 venezuela_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and country='Venezuela' group by year")
@@ -403,45 +397,20 @@ venezuela <- left_join(venezuela_total, venezuela_edsup, by = c("year", "country
 venezuela <- subset(venezuela, year >=minimo & year <=maximo)
 venezuela$ratio <- (venezuela$ed_sup / venezuela$total)*100
 
-
-
-
-
-
-country <- 'Venezuela'
-
-venezuela_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and country='Venezuela' group by year")
-venezuela_total <-  fetch(venezuela_total, n=-1)
-venezuela_total <- cbind(venezuela_total,country)
-names(venezuela_total)[names(venezuela_total)=="count(distinct a.ut)"] <- "total"
-
-venezuela_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and country='Venezuela' and address like '%Univ%' group by year")
-venezuela_edsup <-  fetch(venezuela_edsup, n=-1)
-venezuela_edsup <- cbind(venezuela_edsup,country)
-names(venezuela_edsup)[names(venezuela_edsup)=="count(distinct a.ut)"] <- "ed_sup"
-venezuela <- left_join(venezuela_total, venezuela_edsup, by = c("year", "country"))
-venezuela <- subset(venezuela, year >=minimo & year <=maximo)
-venezuela$ratio <- (venezuela$ed_sup / venezuela$total)*100
-
-
-
-
-
-
-country <- 'America Latina'
-
-america_latina_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and (country='Argentina' or country='Bolivia'  or country='Brazil'  or country='Chile'  or country='Colombia'  or country='Costa Rica'  or country='Cuba'  or country='Ecuador'  or country='El Salvador'  or country='Guatemala'  or country='Honduras'  or country='Mexico'  or country='Nicaragua'  or country='Panama'  or country='Paraguay'  or country='Peru'  or country='Dominican Republic'  or country='Uruguay'  or country='Venezuela')  group by year")
-america_latina_total <-  fetch(america_latina_total, n=-1)
-america_latina_total <- cbind(america_latina_total,country)
-names(america_latina_total)[names(america_latina_total)=="count(distinct a.ut)"] <- "total"
-
-america_latina_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and (country='Argentina' or country='Bolivia'  or country='Brazil'  or country='Chile'  or country='Colombia'  or country='Costa Rica'  or country='Cuba'  or country='Ecuador'  or country='El Salvador'  or country='Guatemala'  or country='Honduras'  or country='Mexico'  or country='Nicaragua'  or country='Panama'  or country='Paraguay'  or country='Peru'  or country='Dominican Republic'  or country='Uruguay'  or country='Venezuela')  and address like '%Univ%' group by year")
-america_latina_edsup <-  fetch(america_latina_edsup, n=-1)
-america_latina_edsup <- cbind(america_latina_edsup,country)
-names(america_latina_edsup)[names(america_latina_edsup)=="count(distinct a.ut)"] <- "ed_sup"
-america_latina <- left_join(america_latina_total, america_latina_edsup, by = c("year", "country"))
-america_latina <- subset(america_latina, year >=minimo & year <=maximo)
-america_latina$ratio <- (america_latina$ed_sup / america_latina$total)*100
+  country <- 'America Latina'
+  
+  america_latina_total <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut  and (country='Argentina' or country='Bolivia'  or country='Brazil'  or country='Chile'  or country='Colombia'  or country='Costa Rica'  or country='Cuba'  or country='Ecuador'  or country='El Salvador'  or country='Guatemala'  or country='Honduras'  or country='Mexico'  or country='Nicaragua'  or country='Panama'  or country='Paraguay'  or country='Peru'  or country='Dominican Republic'  or country='Uruguay'  or country='Venezuela')  group by year")
+  america_latina_total <-  fetch(america_latina_total, n=-1)
+  america_latina_total <- cbind(america_latina_total,country)
+  names(america_latina_total)[names(america_latina_total)=="count(distinct a.ut)"] <- "total"
+  
+  america_latina_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and (country='Argentina' or country='Bolivia'  or country='Brazil'  or country='Chile'  or country='Colombia'  or country='Costa Rica'  or country='Cuba'  or country='Ecuador'  or country='El Salvador'  or country='Guatemala'  or country='Honduras'  or country='Mexico'  or country='Nicaragua'  or country='Panama'  or country='Paraguay'  or country='Peru'  or country='Dominican Republic'  or country='Uruguay'  or country='Venezuela')  and (address like '%Univ%' or address like '%Escuela%' or address like '%Instituto Tecn%') group by year")
+  america_latina_edsup <-  fetch(america_latina_edsup, n=-1)
+  america_latina_edsup <- cbind(america_latina_edsup,country)
+  names(america_latina_edsup)[names(america_latina_edsup)=="count(distinct a.ut)"] <- "ed_sup"
+  america_latina <- left_join(america_latina_total, america_latina_edsup, by = c("year", "country"))
+  america_latina <- subset(america_latina, year >=minimo & year <=maximo)
+  america_latina$ratio <- (america_latina$ed_sup / america_latina$total)*100
 
 
 country <- 'Iberoamerica'
@@ -451,7 +420,7 @@ iberoamerica_total <-  fetch(iberoamerica_total, n=-1)
 iberoamerica_total <- cbind(iberoamerica_total,country)
 names(iberoamerica_total)[names(iberoamerica_total)=="count(distinct a.ut)"] <- "total"
 
-iberoamerica_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and (country='Argentina' or country='Bolivia'  or country='Brazil'  or country='Chile'  or country='Colombia'  or country='Costa Rica'  or country='Cuba'  or country='Ecuador'  or country='El Salvador'  or country='Guatemala'  or country='Honduras'  or country='Mexico'  or country='Nicaragua'  or country='Panama'  or country='Paraguay'  or country='Peru'  or country='Dominican Republic'  or country='Uruguay'  or country='Venezuela' or country='Spain' or country='Portugal')  and address like '%Univ%' group by year")
+iberoamerica_edsup <- dbSendQuery(scopus_ibero, "select year, count(distinct a.ut) from author_address a, article b where a.ut=b.ut and (country='Argentina' or country='Bolivia'  or country='Brazil'  or country='Chile'  or country='Colombia'  or country='Costa Rica'  or country='Cuba'  or country='Ecuador'  or country='El Salvador'  or country='Guatemala'  or country='Honduras'  or country='Mexico'  or country='Nicaragua'  or country='Panama'  or country='Paraguay'  or country='Peru'  or country='Dominican Republic'  or country='Uruguay'  or country='Venezuela' or country='Spain' or country='Portugal')  and  (address like '%Univ%' or address like '%Escuela%' or address like '%Instituto Tecn%') group by year")
 iberoamerica_edsup <-  fetch(iberoamerica_edsup, n=-1)
 iberoamerica_edsup <- cbind(iberoamerica_edsup,country)
 names(iberoamerica_edsup)[names(iberoamerica_edsup)=="count(distinct a.ut)"] <- "ed_sup"
@@ -459,36 +428,36 @@ iberoamerica <- left_join(iberoamerica_total, iberoamerica_edsup, by = c("year",
 iberoamerica <- subset(iberoamerica, year >=minimo & year <=maximo)
 iberoamerica$ratio <- (iberoamerica$ed_sup / iberoamerica$total)*100
 
-
-
-
-
-
-
 total <- rbind(argentina,bolivia, brazil, chile, colombia, costa_rica, cuba, ecuador, el_salvador, spain, guatemala, honduras, mexico, nicaragua, panama, paraguay, peru, portugal, dominican_republic, uruguay, venezuela, america_latina, iberoamerica)
-
-
-
-
-
-
-
-
-
-
 
 
 ########################JUNTAR DATOS#####################
 
 plot_ly(total, x = ~year, y = ~ratio, type = 'scatter',  color = ~country, mode = 'lines')
 
-
-
 ###REGIONALES###
+  
+Totales01 <- total %>% 
+  select(country, year, total) %>% 
+  spread(year, total) %>% 
+  mutate(indicador ='Total Publicaciones')
+
+Totales02 <- total %>% 
+  select(country, year, ed_sup) %>% 
+  spread(year, ed_sup) %>% 
+  mutate(indicador ='Publicaciones en Educ Superior')
+
+Totales03 <- total %>% 
+  select(country, year, ratio) %>% 
+  spread(year, ratio) %>% 
+  mutate(indicador ='Porcentaje')
+
+Base_Final <- rbind(Totales01, Totales02, Totales03)
+
 
 setwd("~/SCI_genero")
 setwd(".")
-write.csv(total, 'ed_superior.csv')
+write.csv(Base_Final, 'Base_Final.csv')
 
 
 
