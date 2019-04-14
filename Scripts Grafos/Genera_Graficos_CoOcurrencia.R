@@ -130,3 +130,84 @@ min_spanning_tree <- mst(g, weights = E(g)$weight)
 ####Maximum Spanning Tree###
 max_spanning_tree <- mst(g, weights = 1/E(g)$weight)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################NUEVA VERSION######################################
+grafo1 <- read_delim("C:/Users/Juan/Desktop/grafo.csv", ";", escape_double = FALSE, trim_ws = TRUE)
+
+######################ARMA NODOS############################
+nodos <- grafo1 %>% group_by(asjc_code, asjc_desc) %>% summarise(n = n())
+
+######################ARMA ARISTAS##########################
+aristas_01 <- unique(grafo1 %>% group_by(asjc_code))
+aristas_02 <- aristas_01 %>% group_by(id) %>% summarise(combo_1 = paste(asjc_code, collapse = ","))
+aristas_03 <- grafo1 %>% left_join(aristas_02, on='id')
+aristas_04 <- aristas_03 %>% mutate(codigos = strsplit(as.character(combo_1), ",")) %>% unnest(codigos)
+
+aristas_previo <- aristas_04[c(2,4)]
+colnames(aristas_previo) <- c("source","target")
+###ACA ES IMPORTANTE QUE EL SUMMARIZE SE LLAME WEIGHT PARA QUE ME GENERE UN GRAFICO CON PESOS EN LAS ARISTAS
+aristas <- aristas_previo %>% group_by(source, target) %>% summarize(weight=n())
+
+
+grafo <- graph_from_data_frame(aristas, directed=FALSE, vertices=nodos)
+is_weighted(grafo)
+g<- simplify(grafo, remove.multiple = TRUE)
+
+####VER LOS ATRIBUTOS#####
+str(vertex.attributes(g))
+str(edge.attributes(g))
+
+####Agrega el atributo grado###
+g <- set_vertex_attr(g, "Degree", value = degree(g))
+####Agrega intermediacion####
+g <- set_vertex_attr(g, "Intermediacion", value = betweenness(g, directed = FALSE))
+
+
+####Clusterizaciones ####
+rw <- cluster_walktrap(g, weights = E(g)$weight, steps = 2,
+                 merges = TRUE, modularity = TRUE, membership = TRUE)
+fg <- fastgreedy.community(as.undirected(g))
+
+
+############Grafo###################
+
+layouts <- grep("^layout_", ls("package:igraph"), value=TRUE)[-1] 
+# Remove layouts that do not apply to our graph.
+layouts <- layouts[!grepl("bipartite|merge|norm|sugiyama|tree", layouts)]
+par(mfrow=c(4,4), mar=c(1,1,1,1))
+#par(mfrow=c(1,1))
+
+for (layout in layouts) {
+  print(layout)
+  l <- do.call(layout, list(g)) 
+  plot(g, edge.arrow.mode=0, layout=l, main=layout, vertex.color=fg$membership) }
+
+
+set.seed(1991) 
+grafo.kk <- plot.igraph(g, 
+                        layout=layout_nicely, 
+                        vertex.size=degree(g), vertex.label.cex=0.5,vertex.label.color="black",vertex.color=fg$membership, vertex.shape="circle",
+                        edge.width=E(g)$weight/1000)
+
+
+
+
+
+
+
