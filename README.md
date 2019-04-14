@@ -6,5 +6,5 @@ La carpeta Grafos contiene el código para poder construir grafos a partir de ar
 Realiza las transformaciones necesarias y construye los nodos y aristas para hacer un grafo desde data_frame
 
 <p align="center">
-  <img src="https://github.com/juansokil/Scripts_RICYT/blob/master/layouts.png" width="400">
+  <img src="https://github.com/juansokil/Scripts_RICYT/Scripts Grafos/blob/master/layouts.png" width="400">
 </p>
