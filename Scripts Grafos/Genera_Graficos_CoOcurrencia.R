@@ -191,19 +191,22 @@ layouts <- grep("^layout_", ls("package:igraph"), value=TRUE)[-1]
 # Remove layouts that do not apply to our graph.
 layouts <- layouts[!grepl("bipartite|merge|norm|sugiyama|tree", layouts)]
 par(mfrow=c(4,4), mar=c(1,1,1,1))
-#par(mfrow=c(1,1))
-
+set.seed(1991) 
 for (layout in layouts) {
   print(layout)
   l <- do.call(layout, list(g)) 
-  plot(g, edge.arrow.mode=0, layout=l, main=layout, vertex.color=fg$membership) }
+  plot(min_spanning_tree, edge.arrow.mode=0, layout=l, main=layout, 
+       vertex.size=degree(g)*1.2, vertex.label.cex=0.5,vertex.label.color="black",
+       vertex.color=fg$membership, vertex.shape="circle",
+       edge.width=E(g)$weight/15) }
 
 
-set.seed(1991) 
-grafo.kk <- plot.igraph(g, 
-                        layout=layout_nicely, 
-                        vertex.size=degree(g), vertex.label.cex=0.5,vertex.label.color="black",vertex.color=fg$membership, vertex.shape="circle",
-                        edge.width=E(g)$weight/1000)
+par(mfrow=c(1,1))
+#set.seed(1991) 
+#grafo.kk <- plot.igraph(g, 
+#                        layout=layout_nicely, 
+#                        vertex.size=degree(g), vertex.label.cex=0.5,vertex.label.color="black",vertex.color=fg$membership, vertex.shape="circle",
+#                        edge.width=E(g)$weight/1000)
 
 
 
