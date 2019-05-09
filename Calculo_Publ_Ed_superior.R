@@ -11,9 +11,6 @@ library(tidyr)
 
 source('C:/Users/observatorio/Documents/SCI_genero/00-sql.r', encoding = 'latin1')
 
-
-
-
 ###chequear conexion###
 scopus_ibero
 
@@ -21,10 +18,20 @@ scopus_ibero
 ###create table ut_year_country as select distinct b.country, a.ut, a.year, a.pub_name from article a, address b where a.ut=b.ut; ####
 
 minimo=2010
-maximo=2016
+maximo=2017
+
+####Primero debo crear una base ut_year_country en la base de datos####
+####ESTA CONSULTA TARDA BASTANTE#########
+
+ut_year_country <- dbSendQuery(scopus_ibero, "select b.country, a.ut, a.year, a.pub_name from article a, author_address b where a.ut=b.ut")
+ut_year_country <-  fetch(ut_year_country, n=-1)
+ut_year_country <- unique(ut_year_country)
+
+dbWriteTable(scopus_ibero, name='ut_year_country', value=ut_year_country, overwrite = TRUE, row.names = FALSE)
 
 
 
+############EMPIEZA A ARMAR LOS CUADROS#################
 
 
 country <- 'Argentina'
@@ -41,6 +48,25 @@ names(argentina_edsup)[names(argentina_edsup)=="count(distinct a.ut)"] <- "ed_su
 argentina <- left_join(argentina_total, argentina_edsup, by = c("year", "country"))
 argentina <- subset(argentina, year >=minimo & year <=maximo)
 argentina$ratio <- (argentina$ed_sup / argentina$total)*100
+
+
+argentina_disc_total <- dbSendQuery(scopus_ibero, "select a.year, b.area_desc, count(distinct a.ut) as cant from scopus.discXrevista b, scopus_ibero.ut_year_country a where b.name=a.pub_name and a.country  ='Argentina' group by a.year, b.area_desc")
+argentina_disc_total <-  fetch(argentina_disc_total, n=-1)
+argentina_disc_total <- cast(argentina_disc_total, year ~ area_desc, value='cant')
+argentina_disc_total <- cbind(argentina_disc_total,country)
+
+argentina <- left_join(argentina, argentina_disc_total, by = c("year", "country"))
+
+argentina_disc_edsup <- dbSendQuery(scopus_ibero, "select a.year, b.area_desc, count(distinct a.ut) as cant from scopus.discXrevista b, author_address c, scopus_ibero.ut_year_country a where b.name=a.pub_name and a.ut=c.ut and a.country  ='Argentina' and c.address like '%Univ%' group by a.year, b.area_desc")
+argentina_disc_edsup <-  fetch(argentina_disc_edsup, n=-1)
+argentina_disc_edsup <- cast(argentina_disc_edsup, year ~ area_desc, value='cant')
+argentina_disc_edsup <- cbind(argentina_disc_edsup,country)
+
+argentina <- left_join(argentina, argentina_disc_edsup, by = c("year", "country"))
+
+
+
+
 
 
 country <- 'Barbados'
