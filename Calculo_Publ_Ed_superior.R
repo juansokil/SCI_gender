@@ -1092,6 +1092,11 @@ write.csv(total_disc, 'Base_Completa.csv')
 total <- total_disc %>% 
   select(year, total, country, ed_sup, ratio) %>% rbind(america_latina, iberoamerica)
 
+total %>%  filter (year ==2010 | year==2017) %>%
+  ggplot(aes(x = country, y = ratio, col = year, group = year)) + 
+  geom_polygon(fill = NA, size = 2) + coord_polar() 
+
+
 Totales01 <- total %>% 
   select(country, year, total) %>% 
   spread(year, total) %>% 
