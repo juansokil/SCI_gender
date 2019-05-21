@@ -13,7 +13,7 @@ Realiza las transformaciones necesarias y construye los nodos y aristas para hac
 Los indicadores de Educación Superior permiten conocer la participación de las universidades en la producción científica de Iberoamerica. La región se caracteriza por una participación muy alta de las universidades.
 
 <p align="center">
-  <img src="https://github.com/juansokil/Scripts_RICYT/blob/master/educacion%20Superior.png" width="400">
+  <img src="https://github.com/juansokil/Scripts_RICYT/blob/master/educacion%20Superior.png" width="800">
 </p>
 
 
