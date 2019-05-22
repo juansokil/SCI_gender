@@ -12,7 +12,8 @@ library(dplyr)
 library(plotly)
 #install.packages("reshape")
 library(reshape)
-
+library(dplyr)
+library(ggplot2)
 
 source('C:/Users/observatorio/Documents/SCI_genero/00-sql.r', encoding = 'latin1')
 
@@ -26,7 +27,7 @@ scopus_ibero
 ###create table ut_year_country as select distinct b.country, a.ut, a.year, a.pub_name from article a, address b where a.ut=b.ut; ####
 
 minimo=2010
-maximo=2016
+maximo=2017
 
 country <- 'Argentina'
 argentina_total <- dbSendQuery(scopus_ibero, "select year, country, count(distinct ut) from ut_year_country where country='Argentina' group by year, country")
@@ -971,7 +972,15 @@ total <- rbind(brazil,spain,argentina,mexico,portugal,chile,
                jamaica,nicaragua,panama,paraguay,peru,puerto_rico, 
                dominican_republic,trinidad_and_tobago,uruguay,venezuela)
 
-plot_ly(total, x = ~year, y = ~ratio_colab, type = 'scatter',  color = ~country, mode = 'lines')
+
+total %>%
+  filter (country %in% c('Argentina','Brazil','Colombia','Chile','Mexico','Spain','Portugal')) %>%
+  ggplot(aes(x=country, y=ratio_colab, color=country, fill=country)) + geom_bar(stat='identity') +
+  facet_wrap(~year) +
+  theme_minimal() +
+  theme(axis.title.x=element_blank(), axis.text.x = element_text(angle = 90, hjust = 1),
+        strip.background = element_rect(colour="grey", fill="grey"),
+        legend.position='none', legend.title = element_blank())
 
 
 
