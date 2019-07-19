@@ -1,8 +1,16 @@
 library(DBI)
 library(RMySQL)
+library(dplyr)
+library(ggplot2)
 
-scopus_ibero = dbConnect(MySQL(), user='scopus', password='r1cyt2698', dbname='scopus_ibero', host='mysql2.ricyt.org')
 
+source('C:/Users/observatorio/Documents/SCI_genero/00-sql.r', encoding = 'latin1')
+
+
+
+
+###chequear conexion###
+scopus_ibero
 
 query01 <- dbSendQuery(scopus_ibero, "select abstract from article limit 5000;")
 query01 <-  fetch(query01, n=-1)
@@ -32,4 +40,4 @@ ggraph(wordnetwork, layout  = "fr") +
   geom_node_text(aes(label = name), col = "black", size = 5) +
   theme_graph(base_family = "Arial Narrow") +
   theme(legend.position = "none") +
-  labs(title = "Co-ocurrencias en la misma oración", subtitle = "Sustantivos y Adjetivos")
+  labs(title = "Co-ocurrencias en la misma oraciÃ³n", subtitle = "Sustantivos y Adjetivos")
