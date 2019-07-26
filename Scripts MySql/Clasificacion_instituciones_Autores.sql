@@ -32,3 +32,15 @@ INNER JOIN author t2
 ON t1.name_complete = t2.name
 SET t1.author_id = t2.author_id 
 WHERE t1.name_complete = t2.name;
+
+
+
+
+#################ACTUALIZA DATOS########################
+
+#####Esto trae los id#####
+UPDATE scopus_ibero.author t1 
+INNER JOIN scopus_id.author t2 
+ON t1.name = t2.name and t1.ut = t2.ut
+SET t1.author_id = t2.author_id 
+WHERE (t1.name = t2.name and t1.ut = t2.ut);
