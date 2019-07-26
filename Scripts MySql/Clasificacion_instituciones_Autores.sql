@@ -18,13 +18,16 @@ WHERE t1.inst_id = t2.inst_id
 
 
 ########################authors########
-
 #####crea una nueva variable en la tabla author_adress con el nombre completo#####
-ALTER TABLE author_address ADD COLUMN name_complete text;
-ALTER TABLE author_address ADD COLUMN author_id int (22);
+ALTER TABLE author_address ADD COLUMN author_id int (32);
 
 #####Hace un update con el concat####
 UPDATE author_address SET name_complete = CONCAT(surname, ' ', name);
 
 
-
+#####Esto trae los id#####
+UPDATE author_address t1 
+INNER JOIN author t2 
+ON t1.name_complete = t2.name
+SET t1.author_id = t2.author_id 
+WHERE t1.name_complete = t2.name;
