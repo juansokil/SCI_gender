@@ -21,14 +21,28 @@ WHERE t1.inst_id = t2.inst_id
 #####crea una nueva variable en la tabla author_adress con el nombre completo#####
 ALTER TABLE author_address ADD COLUMN author_id int (32);
 
+
+
 #####Hace un update con el concat, pasa a mayusculas####
 UPDATE author_address SET name_complete = TRIM(UPPER(CONCAT(surname, ' ', name)));
 UPDATE author SET name = TRIM(UPPER(name));
 
 
+
+#################ACTUALIZA DATOS########################
+
 #####Esto trae los id#####
+UPDATE scopus_ibero.author t1 
+INNER JOIN scopus_id.author t2 
+ON t1.name = t2.name and t1.ut = t2.ut
+SET t1.author_id = t2.author_id 
+WHERE (t1.name = t2.name and t1.ut = t2.ut);
+
+
+#####Esto actualiza la tabla author_address#####
 UPDATE author_address t1 
 INNER JOIN author t2 
-ON t1.name_complete = t2.name
+ON (t1.name_complete = t2.name and t1.ut=t2.ut)
 SET t1.author_id = t2.author_id 
-WHERE t1.name_complete = t2.name;
+WHERE t1.name_complete = t2.name and t1.ut=t2.ut;
+
