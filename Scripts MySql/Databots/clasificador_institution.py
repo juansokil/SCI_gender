@@ -113,7 +113,7 @@ def main(argv=None):
                 n = 0
                 for iid in identified_lst:
                     
-                    ai = ArticleInstitution(address.ut, address.order)
+                    ai = ArticleInstitution(address.ut, address.order, address.country)
                     ai.address = address.address.strip()
                     ai.inst_id = iid
                     ai.inst_n = n
@@ -124,7 +124,7 @@ def main(argv=None):
             else:
                 
                 #print "SIN MATCH: " + normalized   
-                ai = ArticleInstitution(address.ut, address.order)
+                ai = ArticleInstitution(address.ut, address.order, address.country)
                 ai.address = address.address
                 ai.inst_id = 9999
                 ai.inst_n = 0

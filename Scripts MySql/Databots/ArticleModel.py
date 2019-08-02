@@ -57,14 +57,14 @@ class ArticleInstitution(Base):
 	inst_id = Column(Integer)
 	inst_name = Column( UnicodeText(collation='utf8_bin') )
 	inst_n = Column(Integer,  primary_key=True, autoincrement=False)
-	
+	country = Column( Unicode(255, collation='utf8_bin') )	
 
 	#}
 
 	def __init__(self, ut, order):
 		self.ut = ut
 		self.order = order
-
+		self.country = country
 
 
 class Author(Base):
