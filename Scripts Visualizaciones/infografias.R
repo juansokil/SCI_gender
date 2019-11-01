@@ -1,5 +1,111 @@
 
 
+library(grid)
+library(ggplot2)
+library(waffle)
+library(useful)
+library(extrafont)
+library(igraph)
+library(dplyr)
+library(tibble)
+library(httr)
+library(jsonlite)
+library(rlist)
+library(RJSONIO)
+library(ggflags)
+library(scales)
+library(tidyr)
+
+#install.packages("ggthemes")
+library(ggthemes)
+
+#LEVANTA PAISES y ASIGNA COLORES
+listado <- RJSONIO::fromJSON("http://db.ricyt.org/api/comparative/AR,BO,BR,CL,CO,CR,CU,EC,SV,ES,GT,HN,JM,MX,NI,PA,PY,PE,PT,PR,DO,TT,UY,VE,AL/2017/POBLA")
+pais <- c()
+i=1
+for (i in 1:25){
+  pais[i] <- listado$metadata$countries[[i]]$name_es
+}
+pais <- as.data.frame(pais)
+
+
+prefijo <- c()
+i=1
+for (i in 1:25){
+  prefijo[i] <- listado$metadata$countries[[i]]$country_id
+}
+prefijo <- as.data.frame(prefijo)
+listado <- cbind(pais,prefijo)
+
+
+#############Esto se hae una vez sola ###########
+
+###Listado de indicadores#################
+indicators = c("GASIDSFPER")
+
+datos = data.frame()
+datos_indicador = data.frame()
+for (indicator in indicators) {
+  ##Crea un data.frame vacio##
+  indicator_name=indicator
+  print(indicator_name)
+  indicador <- RJSONIO::fromJSON(paste("http://db.ricyt.org/api/comparative/AR,BO,BR,CO,CR,CU,CL,EC,SV,GT,HN,JM,MX,NI,PA,PY,PE,PT,TT,UY,VE,AL/1990/",indicator_name,sep=""))
+  
+
+  ###Comienza el for###
+  for (i in 1:(length(indicador$metadata$countries))){
+    for (j in 1:(length(indicador$indicators[[1]]$countries[[i]]$rows)))
+      {
+        ###Normal IF, si las 3 columnas tienen valores las appendea###  
+        if (ncol(cbind(indicador$indicators[[1]]$countries[[i]]$rows[[j]]$values, indicador$indicators[[1]]$countries[[i]]$rows[[j]]$name_es, indicador$indicators[[1]]$countries[[i]]$name_es))==3) 
+          {
+          pais <- cbind(
+            indicador$metadata$countries[[i]]$country_id,
+            indicador$indicators[[1]]$countries[[i]]$rows[[j]]$values,
+            indicador$indicators[[1]]$name_es[[1]],
+            indicador$indicators[[1]]$countries[[i]]$rows[[j]]$name_es,
+            indicador$indicators[[1]]$countries[[i]]$name_es,
+            indicator_name)
+          pais <-  rownames_to_column(as.data.frame(pais) , var = "rowname")
+          
+          ###Append de los datos de cada pais###  
+          datos_indicador <- rbind(datos_indicador, pais)
+          }#CIERRA EL IF#
+      }#CIERRA EL FOR DE LAS FILAS###
+    head(datos_indicador)
+            
+    ###CIERRA FOR###
+    ###Append de los datos de cada indicador###  
+    
+  }
+  
+  datos <- rbind(datos, datos_indicador)
+  ###CIERRA FOR###
+}    
+
+
+colnames(datos)<- c("year","iso","valor","nombre","fila","country","indicator_name")
+
+datos$valor <- as.numeric(as.character(datos$valor))
+datos$year <- as.numeric(as.character(datos$year))
+
+MX <-  datos %>% filter(iso == 'MX' & indicator_name =='GASIDSFPER' & year %in% c(2005:2017))
+View(MX)
+
+  datos %>%
+  filter(iso == 'MX' & indicator_name =='GASIDSFPER' & year %in% c(2005:2017)) %>% glimpse() %>% 
+  ggplot(aes(year, valor, group=fila, color=fila, fill=fila)) +
+    geom_bar() +
+    #geom_bar(stat='identity') +
+    scale_y_continuous(labels = scales::percent, limits = c(0,1)) +
+    scale_x_discrete(limits = c(2005:2017)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
+
+
+
+
+
 install.packages('maps')
 install.packages('geosphere')
 
