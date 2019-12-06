@@ -1,5 +1,6 @@
 
 
+
 library(grid)
 library(ggplot2)
 library(waffle)
@@ -18,7 +19,30 @@ library(tidyr)
 library(bibliometrix)
 #install.packages("treemapify")
 library(treemapify)
-#biblioshiny()
+#biblioshiny()#install.packages("rsdmx")
+library(rsdmx)
+library(tidyverse)
+
+#https://apiportal.uis.unesco.org/query-builder#data
+
+UNESCOurl <- "https://api.uis.unesco.org/sdmx/data/UNESCO,RD,1.0/GERD.GDP..........?startPeriod=2012&endPeriod=2017&format=sdmx-compact-2.1&locale=es&subscription-key=35140ee6652b4f6985d7225173fbef63"
+indicador <- readSDMX(UNESCOurl)
+
+indicador_df <- as.data.frame(indicador)
+
+indicador_df <- indicador_df %>%
+  select(TIME_PERIOD, REF_AREA, OBS_VALUE) %>% 
+  arrange(desc(TIME_PERIOD)) %>% 
+  group_by(REF_AREA) %>% top_n(1)
+  
+
+indicador_df$OBS_VALUE <- as.double(as.character(indicador_df$OBS_VALUE))
+indicador_df$TIME_PERIOD <- as.double(as.character(indicador_df$TIME_PERIOD))
+
+indicador_df <- indicador_df %>%
+rename(year = TIME_PERIOD, iso=REF_AREA, valor=OBS_VALUE)
+
+
 
 
 
@@ -151,13 +175,27 @@ countrycode <-  as.data.frame(countrycode::codelist) %>%
 
 ###Levanto datos I+D####
 id_mundial <- datos %>%
-  filter(indicator_name =='GASTOxPBI' & year == 2017) %>% unique()
+  filter(indicator_name =='GASTOxPBI' & year == 2017) %>% unique() %>%
+  select(year, iso, valor)
+
+
+id_mundial2 <- bind_rows(id_mundial,indicador_df)
+
+paises <- id_mundial2 %>%
+  arrange(desc(valor)) %>%
+  top_n(10) %>%
+  ggplot(aes(x=iso, y=valor)) +
+  geom_bar(stat='identity') +
+  coord_flip()
 
 map.world.joined <- map.world %>% 
   left_join(countrycode, by =c("region"="pais")) 
 
 map.world.joined2 <- map.world.joined %>% 
-  left_join(id_mundial, by =c("code"="iso"))
+  left_join(id_mundial2, by =c("code"="iso"))
+
+
+
 
 imdmundial <- ggplot() +
   geom_polygon(data = map.world.joined2, aes(x = long, y = lat, group = group, fill=valor*100)) +
@@ -168,9 +206,8 @@ imdmundial <- ggplot() +
         plot.title = element_text(vjust = -1, hjust = 0.5, size=14),
         plot.subtitle = element_text(vjust = -2, hjust = 0.5, size=10)) +
   labs(title = "Gasto en I+D por paìs", x="",y="") +
-  scale_fill_gradient2(low="lightblue", high="darkblue")
-
-
+scale_fill_continuous(low="lightgreen",  high="darkgreen", 
+                       guide="colorbar",na.value="white")
 
 ######GRAFICO04######
 sf_ultimo <- 
@@ -267,6 +304,8 @@ waffle <- waffle(
 
 # Generate Infographic in PDF format
 
+
+
 pdf("./Infographics_Arg.pdf", width = 8, height = 11)
 ###Pagina01###
 grid.newpage() 
@@ -276,9 +315,10 @@ grid.text("Argentina",  y = unit(1, "npc"), x = unit(0.5, "npc"), vjust = 1.1, h
 grid.text("Recursos Financieros en I+D", y = unit(0.94, "npc"), check.overlap = TRUE, hjust = 0.1 , gp = gpar(col = "#E7A922", alpha = 0.8, cex = 2, vp=vplayout(1,1:8)))
 print(idppc, vp = vplayout(2:4, 1:4))
 print(idpbi, vp = vplayout(2:4, 5:8))
-print(imdmundial, vp = vplayout(5:8, 1:8))
-print(sf_ultimo, vp = vplayout(9:11, 1:4))
-print(se_ultimo, vp = vplayout(9:11, 5:8))
+print(imdmundial, vp = vplayout(5:8, 1:5))
+print(paises, vp = vplayout(5:8, 6:8))
+print(sf_ultimo, vp = vplayout(9:11, 1:3))
+print(se_ultimo, vp = vplayout(9:11, 6:8))
 
 ###Pagina02###
 grid.newpage() 
