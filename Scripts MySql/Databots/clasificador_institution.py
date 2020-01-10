@@ -18,7 +18,6 @@ import normalize
 
 help_message = '''
 command  --dbstring=[user:pass@host/dbname]
-
 '''
 
 class Usage(Exception):
@@ -87,15 +86,14 @@ def main(argv=None):
         ## Procesamiento de todas las direcciones usando el clasificador
 
         addresses = session.query(Address).filter( func.upper(Address.country) == 'ARGENTINA').all()
+        ####CHEQUEAR ESTO#####
+        #addresses = (session.query(Address, Article).filter( func.upper(Address.country) == 'ARGENTINA').filter(Article.year == 2019).outerjoin(Address.ut == Article.ut).all())
         
-        #addresses = (session.query(Address, Article).filter( func.upper(Address.country) == 'ARGENTINA').filter(Article.year == 2017).all())
-        
-        
-        
+
+
         for address in addresses:
             
-            #Prueba - Imprimir cada uno #
-            print(address)
+            
             normalized = normalize.normalize( address.address )
             
             #print normalized
@@ -117,9 +115,12 @@ def main(argv=None):
                     ai.address = address.address.strip()
                     ai.inst_id = iid
                     ai.inst_n = n
-            
-                    session.add(ai)
 
+                    if session.query(ArticleInstitution).filter(ArticleInstitution.ut == ai.ut, ArticleInstitution.order == ai.order).first() == None:
+                        print('Institucion Identificada: ', ai.ut,' ',ai.inst_id )
+                        session.add(ai)            
+                    else:
+                        print(ai.ut,'repetido')
                     n = n + 1
             else:
                 
@@ -128,9 +129,11 @@ def main(argv=None):
                 ai.address = address.address
                 ai.inst_id = 9999
                 ai.inst_n = 0
-        
-                session.add(ai)
-
+                if session.query(ArticleInstitution).filter(ArticleInstitution.ut == ai.ut, ArticleInstitution.order == ai.order).first() == None:
+                    print('Institucion Sin identificar: ', ai.ut,' ',ai.inst_id )
+                    session.add(ai)
+                else:
+                    print(ai.ut,'repetido')
             
             session.flush()
 
