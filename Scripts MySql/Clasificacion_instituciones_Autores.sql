@@ -24,8 +24,11 @@ ALTER TABLE author_address ADD COLUMN author_id int (32);
 
 
 #####Hace un update con el concat, pasa a mayusculas####
-UPDATE author_address SET name_complete = TRIM(UPPER(CONCAT(surname, ' ', name)));
+UPDATE author_address SET name_complete = TRIM(UPPER(CONCAT(surname, ' ', name))) WHERE name_complete is null;
+
 UPDATE author SET name = TRIM(UPPER(name));
+
+
 
 
 
