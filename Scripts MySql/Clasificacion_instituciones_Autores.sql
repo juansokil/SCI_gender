@@ -49,3 +49,33 @@ INNER JOIN author t2
 ON (t1.name_complete = t2.name and t1.ut=t2.ut)
 SET t1.author_id = t2.author_id 
 WHERE t1.author_id is null and t1.name_complete = t2.name and t1.ut=t2.ut;
+
+
+
+
+
+
+
+
+
+
+
+
+#####DESDE R - ARMA LA CANTIDAD DE PUBLICACIONES POR INSTITUCION#####
+library(dplyr)
+library(tidyr)
+
+articleXinstitution_inst <- dbSendQuery(scopus_ibero, "SELECT year, inst_id, inst_name, count(distinct ut) as cant FROM `articleXinstitution` group by year, inst_id, inst_name")
+articleXinstitution_inst <-  fetch(articleXinstitution_inst, n=-1)
+
+articleXinstitution_totales <- dbSendQuery(scopus_ibero, "SELECT year, count(distinct ut) as cant FROM `articleXinstitution` group by year")
+articleXinstitution_totales <-  fetch(articleXinstitution_totales, n=-1)
+
+
+data_wide_inst <- spread(articleXinstitution_inst, year, cant)
+data_wide_total <- spread(articleXinstitution_totales, year, cant)
+
+dd <- data_wide_inst %>%
+  filter(inst_id == 0 | (inst_id >= 1000 & inst_id <= 2000 ))
+
+View(dd)
