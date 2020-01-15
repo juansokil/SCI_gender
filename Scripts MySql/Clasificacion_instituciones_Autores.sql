@@ -62,6 +62,8 @@ WHERE t1.author_id is null and t1.name_complete = t2.name and t1.ut=t2.ut;
 
 
 #####DESDE R - ARMA LA CANTIDAD DE PUBLICACIONES POR INSTITUCION#####
+#### POR LO QUE ESTUVE VIENDO SCOPUS AUMENTA LA CANTIDAD DE PUBLICACIONES DE UNR - LAS MEZCLA CON CORDOBA.. CHEQUEAR####
+
 library(dplyr)
 library(tidyr)
 
