@@ -61,8 +61,9 @@ WHERE t1.author_id is null and t1.name_complete = t2.name and t1.ut=t2.ut;
 
 
 
-#####DESDE R - ARMA LA CANTIDAD DE PUBLICACIONES POR INSTITUCION#####
+#####DESDE R - ARMA LA CANTIDAD DE PUBLICACIONES POR INSTITUCION Y AUTORES#####
 #### POR LO QUE ESTUVE VIENDO SCOPUS AUMENTA LA CANTIDAD DE PUBLICACIONES DE UNR - LAS MEZCLA CON CORDOBA.. CHEQUEAR####
+
 
 library(dplyr)
 library(tidyr)
@@ -73,11 +74,25 @@ articleXinstitution_inst <-  fetch(articleXinstitution_inst, n=-1)
 articleXinstitution_totales <- dbSendQuery(scopus_ibero, "SELECT year, count(distinct ut) as cant FROM `articleXinstitution` group by year")
 articleXinstitution_totales <-  fetch(articleXinstitution_totales, n=-1)
 
-
 data_wide_inst <- spread(articleXinstitution_inst, year, cant)
 data_wide_total <- spread(articleXinstitution_totales, year, cant)
 
-dd <- data_wide_inst %>%
-  filter(inst_id == 0 | (inst_id >= 1000 & inst_id <= 2000 ))
+instituciones <- data_wide_inst %>%
+  filter(inst_id == 0 | (inst_id >= 1000 & inst_id <= 8000 ))
 
-View(dd)
+write.csv(instituciones, 'inst.csv')
+
+
+authorXinstitution_inst <- dbSendQuery(scopus_ibero, "SELECT year, inst_id, inst_name, count(distinct author_id) as cant FROM `authorXinstitution` group by year, inst_id, inst_name")
+authorXinstitution_inst <-  fetch(authorXinstitution_inst, n=-1)
+
+authorXinstitution_totales <- dbSendQuery(scopus_ibero, "SELECT year, count(distinct author_id) as cant FROM `authorXinstitution` group by year")
+authorXinstitution_totales <-  fetch(authorXinstitution_totales, n=-1)
+
+data_wide_inst <- spread(authorXinstitution_inst, year, cant)
+data_wide_total <- spread(authorXinstitution_totales, year, cant)
+
+autores <- data_wide_inst %>%
+  filter(inst_id == 0 | (inst_id >= 1000 & inst_id <= 8000 ))
+
+write.csv(autores, 'aut.csv')
