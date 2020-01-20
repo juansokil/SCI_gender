@@ -33,8 +33,11 @@ ut_year_country <- dbSendQuery(scopus_ibero, "select b.country, a.ut, a.year, a.
 ut_year_country <-  fetch(ut_year_country, n=-1)
 ut_year_country <- unique(ut_year_country)
 
-dbWriteTable(scopus_ibero, name='ut_year_country', value=ut_year_country, overwrite = TRUE, row.names = FALSE)
-
+dbWriteTable(scopus_ibero, name='ut_year_country', value=ut_year_country, overwrite = TRUE, row.names = FALSE, field.types = c(
+  country = "varchar(255)",
+  ut = "varchar(32)",
+  year = "varchar(4)",
+  pub_name = "varchar(255)"))
 
 
 country <- 'Argentina'
