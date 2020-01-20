@@ -17,9 +17,6 @@ library(ggplot2)
 
 source('C:/Users/observatorio/Documents/SCI_genero/00-sql.r', encoding = 'latin1')
 
-
-
-
 ###chequear conexion###
 scopus_ibero
 
@@ -27,7 +24,18 @@ scopus_ibero
 ###create table ut_year_country as select distinct b.country, a.ut, a.year, a.pub_name from article a, address b where a.ut=b.ut; ####
 
 minimo=2010
-maximo=2017
+maximo=2018
+
+####Primero debo crear una base ut_year_country en la base de datos####
+####ESTA CONSULTA TARDA BASTANTE#########
+
+ut_year_country <- dbSendQuery(scopus_ibero, "select b.country, a.ut, a.year, a.pub_name from article a, address b where a.ut=b.ut")
+ut_year_country <-  fetch(ut_year_country, n=-1)
+ut_year_country <- unique(ut_year_country)
+
+dbWriteTable(scopus_ibero, name='ut_year_country', value=ut_year_country, overwrite = TRUE, row.names = FALSE)
+
+
 
 country <- 'Argentina'
 argentina_total <- dbSendQuery(scopus_ibero, "select year, country, count(distinct ut) from ut_year_country where country='Argentina' group by year, country")
