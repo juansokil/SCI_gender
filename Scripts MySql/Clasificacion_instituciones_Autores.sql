@@ -35,21 +35,20 @@ UPDATE author SET name = TRIM(UPPER(name));
 
 #################ACTUALIZA DATOS########################
 
-#####Esto trae los id#####
-UPDATE scopus_ibero.author t1 
-INNER JOIN scopus_id.author t2 
-ON t1.name = t2.name and t1.ut = t2.ut
-SET t1.author_id = t2.author_id 
-WHERE (t1.name = t2.name and t1.ut = t2.ut);
+#####Esto actualiza la tabla author_address#####
+UPDATE author_address t1 
+INNER JOIN author t2 
+ON (t1.ut=t2.ut and t1.`order` = t2.`order`)
+SET t1.name_complete= t2.name
+WHERE t1.name_complete is null and t1.ut=t2.ut and t1.`order` = t2.`order`
 
 
 #####Esto actualiza la tabla author_address#####
 UPDATE author_address t1 
 INNER JOIN author t2 
-ON (t1.name_complete = t2.name and t1.ut=t2.ut)
-SET t1.author_id = t2.author_id 
-WHERE t1.author_id is null and t1.name_complete = t2.name and t1.ut=t2.ut;
-
+ON (t1.ut=t2.ut and t1.`order` = t2.`order`)
+SET t1.author_id= t2.author_id
+WHERE t1.author_id is null and t1.ut=t2.ut and t1.`order` = t2.`order`
 
 
 
