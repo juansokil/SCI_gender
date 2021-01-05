@@ -1,0 +1,889 @@
+---
+title: "Infografias"
+output:
+  flexdashboard::flex_dashboard: default
+  orientation: rows
+  #orientation: columns
+  vertical_layout: fill
+  html_document: default
+runtime: shiny
+
+
+
+---
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(DT)
+library(ggplot2)
+library(shiny)
+library(highcharter)
+library(htmlwidgets)
+library(flexdashboard)
+library(formattable)
+library(tidyverse)
+
+
+#####LEVANTA DATOS################
+
+base_total <- read.table("https://raw.githubusercontent.com/juansokil/Scripts_RICYT/master/Scripts%20Visualizaciones/base_indicadores.csv", header = TRUE, sep = "\t", row.names = 1)
+
+
+###########REACTIVE##############
+
+pais <- reactive(base_total %>% filter (input$country == country))
+
+rango_temporal <- unique(base_total$year)
+rango_temporal_indices <- c(2010,2011,2012,2013,2014,2015,2016,2017,2018)
+
+```
+
+
+ 
+Sidebar {.sidebar}
+=====================================
+
+<img src = "https://raw.githubusercontent.com/juansokil/Scripts_RICYT/master/Scripts%20Visualizaciones/logoricyt.png"  width="70%" height="70%"/>
+
+<br>
+**Seleccione el pais**
+<br>
+Los datos se actualizaran de forma automatica
+
+
+
+
+
+```{r}
+
+#selectizeInput('country', label = "",  
+#              choices = c("Argentina","Bolivia",  "Brasil",
+#                          "Chile","Colombia","Costa Rica","Cuba","Ecuador","El #Salvador","Espana","Guatemala","Honduras","Mexico","Nicaragua","Panama","Paraguay","Peru","Portugal", "Puerto Rico", "Rep. #Dominicana",  "Trinidad y Tobago", "Uruguay","Venezuela"),  
+#              selected = c("Argentina"), multiple = FALSE)
+
+radioButtons('country', label = "",  
+              choices = c("Argentina","Bolivia",  "Brasil",
+                          "Chile","Colombia","Costa Rica","Cuba","Ecuador","El Salvador","Espana","Guatemala","Honduras","Mexico","Nicaragua","Panama","Paraguay","Peru","Portugal", "Puerto Rico", "Rep. Dominicana",  "Trinidad y Tobago", "Uruguay","Venezuela"),  
+              selected = c("Argentina"))
+
+
+```
+
+
+
+
+Recursos Financieros en I+D
+=====================================  
+
+Row {data-width=400}
+-------------------------------------
+
+
+
+### Inversion en I+D medida en Millones de Dolares PPP 
+
+```{r}
+
+renderHighchart({
+
+ grafico_01 <- pais() %>%
+    filter(indicator_name == 'GAS_IMD_PPC') %>%
+    unique()
+
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Inversion en I+D medida en Millones de Dolares PPP', data =grafico_01$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_xAxis( categories = paste0(rango_temporal) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( '<br> <span style="color:{point.color}">\u25CF</span>',
+                                     " $ {point.y} Millones U$S PPP"))   %>%
+    hc_legend(enabled = FALSE)
+  
+})
+
+  
+
+
+
+```
+  
+
+### Distribucion de la inversion en I+D por Sector de Financiamiento - Ultimo año disponible
+
+
+
+```{r}
+
+renderHighchart({
+
+  sf <- pais() %>%  filter(indicator_name %in% c('GASIDSFPER') & ultimo_anio == 1) %>% unique()
+  
+
+
+    if (nrow(sf > 0)) {
+  
+  h1 <- hchart(sf, "pie", hcaes(name = fila , y = (valor)*100), name = "%", innerSize = "20%")
+
+  }
+ else {}
+  
+
+})
+
+
+
+```   
+
+### Distribucion de la inversion en I+D por Sector de Ejecucion - Ultimo año disponible
+
+```{r}
+
+renderHighchart({
+
+
+  se <-  pais() %>%  filter(indicator_name %in% c('GASIDSEPER') & ultimo_anio == 1) %>% unique()
+  
+  if (nrow(se > 0)) {
+  
+  h2 <- hchart( se, "pie", hcaes(name = fila , y = (valor)*100), name = "%", innerSize = "20%") 
+
+  }
+ else {}
+  
+
+})
+
+
+
+```   
+
+
+  
+Row {data-width=400}
+-------------------------------------
+
+
+### Evolución de la inversion en I+ D como % del PIB
+
+
+```{r}
+
+
+
+renderHighchart({
+  
+
+    grafico_2a <- pais() %>%
+    filter(indicator_name == 'GASTOxPBI') %>%
+    unique()
+
+    grafico_2b <- base_total %>%
+    filter(indicator_name == 'GASTOxPBI' & country =='America Latina y el Caribe') %>%
+    unique()
+    
+    
+    grafico_2c <- base_total %>%
+    filter(indicator_name == 'GASTOxPBI' & country =='Iberoamerica') %>%
+    unique()
+  
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = paste0(input$country), data =grafico_2a$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_add_series(name = 'America Latina y el Caribe', data =grafico_2b$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_add_series(name = 'Iberoamerica', data =grafico_2c$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_xAxis( categories = paste0(rango_temporal)) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = T), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = "{point.y} % del PIB")   %>%
+    hc_legend(enabled = TRUE)
+  
+  
+})
+
+
+
+  
+  
+```
+  
+
+
+### Inversion en I+ D como % del PIB - Ultimo Año disponible
+
+
+```{r}
+
+gastoid <- base_total %>% 
+  filter(ultimo_anio == 1 & indicator_name =='GASTOxPBI') %>%
+  #filter(iso %in% c('AR','BR'))  %>%
+  select(pais=country,porcentaje=valor)  %>%
+  filter(pais %in% c("Argentina","Bolivia",  "Brasil",
+                          "Chile","Colombia","Costa Rica","Cuba","Ecuador","El Salvador","Espana","Guatemala","Honduras","Mexico","Nicaragua","Panama","Paraguay","Peru","Portugal", "Puerto Rico", "Rep. Dominicana",  "Trinidad y Tobago", "Uruguay","Venezuela","America Latina y el Caribe","Iberoamerica"))  %>%
+  arrange(desc(porcentaje)) %>% remove_rownames
+  
+
+formattable(gastoid, 
+            list(porcentaje = color_bar("yellow")), align=c('l','r')
+            )
+```
+   
+
+
+
+Recursos Humanos en I+D
+=====================================  
+
+
+Row {data-width=400}
+-------------------------------------
+
+
+
+### Cantidad de Investigadores 
+
+
+```{r}
+
+
+renderHighchart({
+  
+
+  grafico_3a <- pais() %>%
+   filter(indicator_name== 'CPERSOPF') %>%
+    unique()
+
+  grafico_3b <- pais() %>%
+   filter(indicator_name== 'CPERSOEJC') %>%
+    unique()
+  
+  
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Investigadores (Personas Fisicas)', data =grafico_3a$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_add_series(name = 'Investigadores (Equivalencia Jornada Completa)', data =grafico_3b$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_xAxis( categories = paste0(rango_temporal) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    #hc_xAxis(title = list(text = "Año")) %>%
+    #hc_yAxis(title = list(text = "% DEL PBI"))   %>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = "{point.y} Investigadores")   %>%
+    hc_legend(enabled = TRUE)
+  
+  
+})
+
+
+
+
+```
+   
+
+
+
+### Investigadores por Sector de Empleo (Personas Fisicas) - Ultimo año disponible
+
+```{r}
+
+
+renderHighchart({
+
+
+  seinv <-  pais() %>%  filter(indicator_name %in% c('INVESTPFSEPER') & ultimo_anio == 1) %>% unique()
+  
+  if (nrow(seinv > 0)) {
+  
+  h2 <- hchart( seinv, "pie", hcaes(name = fila , y = (valor)*100), name = "%", innerSize = "20%") 
+
+  }
+ else {}
+  
+
+})
+
+
+
+
+```   
+
+
+
+
+
+
+
+
+
+Row {data-width=400}
+-------------------------------------
+
+
+### Evolución de investigadores cada mil integrantes de la PEA (Personas Fisicas)
+
+
+```{r}
+
+
+    
+  
+renderHighchart({
+
+
+
+  grafico_07a <- pais() %>%
+   filter(indicator_name == 'CINVPEA') %>%
+    unique()
+
+  
+  grafico_07b <- base_total %>%
+   filter(indicator_name == 'CINVPEA' & country =='America Latina y el Caribe') %>%
+    unique()
+  
+  
+  grafico_07c <- base_total %>%
+   filter(indicator_name == 'CINVPEA' & country =='Iberoamerica') %>%
+    unique()
+  
+  
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = paste0(input$country), data =grafico_07a$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_add_series(name = 'America Latina y el Caribe', data =grafico_07b$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_add_series(name = 'Iberoamerica', data =grafico_07c$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_xAxis( categories = paste0(rango_temporal) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = "{point.y} Invest cada 1000 PEA")   %>%
+    hc_legend(enabled = TRUE)
+  
+
+})
+  
+
+
+
+  
+  
+```
+  
+    
+
+### Investigadores cada mil integrantes de la PEA (Personas Fisicas) - Ultimo año disponible
+
+```{r}
+
+
+cinvpea <- base_total %>%
+  mutate(valor=round(valor,1))  %>%
+  filter(ultimo_anio == 1 & indicator_name =='CINVPEA') %>%
+  select(pais=country,cantidad=valor)  %>%
+  filter(pais %in% c("Argentina","Bolivia",  "Brasil",
+                          "Chile","Colombia","Costa Rica","Cuba","Ecuador","El Salvador","Espana","Guatemala","Honduras","Mexico","Nicaragua","Panama","Paraguay","Peru","Portugal", "Puerto Rico", "Rep. Dominicana",  "Trinidad y Tobago", "Uruguay","Venezuela","America Latina y el Caribe","Iberoamerica"))  %>%
+  arrange(desc(cantidad)) %>% remove_rownames
+
+
+
+
+formattable(cinvpea, 
+            list(cantidad = color_bar("yellow")), align=c('l','r')
+            )
+
+
+
+```
+
+
+   
+
+
+
+
+Recursos Humanos en I+D por sexo
+=====================================  
+
+
+Row {data-width=400}
+-------------------------------------
+
+
+
+### Cantidad de Investigadoras (Personas Fisicas)
+
+
+
+```{r}
+
+
+renderHighchart({
+  
+
+  grafico_12a <- pais() %>%
+   filter(indicator_name== 'PERSOPFGEN') %>%
+    unique()
+
+  
+  
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Investigadoras (Personas Fisicas)', data =grafico_12a$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_xAxis(categories = paste0(rango_temporal)) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_yAxis(min = 0) %>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = "{point.y} Investigadoras")   %>%
+    hc_legend(enabled = TRUE)
+  
+  
+})
+
+
+
+
+
+
+```
+   
+
+  
+
+
+
+
+
+### Investigadoras por sector de empleo (Personas Fisicas) - Ultimo año disponible
+
+```{r}
+
+
+
+
+renderHighchart({
+
+
+ grafico_15 <- pais() %>%
+    filter(indicator_name == 'CINVBPFF' & ultimo_anio == 1) %>%
+    unique() %>%
+ mutate(valor=round((valor*100),1))  
+ 
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'column') %>%
+    hc_series( list(name = 'Distribucion de Investigadoras por Sector ', data =grafico_15$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_xAxis(type = "categorical", categories = grafico_15$fila) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = T), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( " {point.y} % Investigadoras"))   %>%
+    hc_legend(enabled = FALSE)
+    
+    
+    
+  
+})
+
+  
+
+
+
+```   
+
+
+
+
+Row {data-width=400}
+-------------------------------------
+
+
+
+### Porcentaje Investigadoras (Personas Fisicas)
+
+
+```{r}
+
+renderHighchart({
+
+
+
+  grafico_15a <- pais() %>%
+   filter(indicator_name == 'PERSOPFGENPER' ) %>%
+    unique()  %>% mutate(valor = round(valor*100),1)
+
+  
+  grafico_15b <- base_total %>%
+   filter(indicator_name == 'PERSOPFGENPER'  & country =='America Latina y el Caribe') %>%
+    unique()  %>% mutate(valor = round(valor*100),1)
+  
+  
+  grafico_15c <- base_total %>%
+   filter(indicator_name == 'PERSOPFGENPER'  & country =='Iberoamerica') %>%
+    unique()  %>% mutate(valor = round(valor*100),1)
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = paste0(input$country), data =grafico_15a$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_add_series(name = 'America Latina y el Caribe', data =grafico_15b$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_add_series(name = 'Iberoamerica', data =grafico_15c$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_xAxis( categories = paste0(rango_temporal) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = "{point.y} % Invest Mujeres")   %>%
+    hc_legend(enabled = TRUE)
+  
+  
+})
+
+  
+
+
+```
+  
+
+### Porcentaje investigadoras (Personas Fisicas) - Ultimo año disponible
+
+
+```{r}
+
+persofem <- base_total %>%
+  filter(ultimo_anio == 1 & indicator_name =='PERSOPFGENPER') %>%
+  mutate(valor=round(valor*100,1))  %>%
+  select(pais=country,porcentaje=valor)  %>%
+  filter(pais %in% c("Argentina","Bolivia",  "Brasil",
+                          "Chile","Colombia","Costa Rica","Cuba","Ecuador","El Salvador","Espana","Guatemala","Honduras","Mexico","Nicaragua","Panama","Paraguay","Peru","Portugal", "Puerto Rico", "Rep. Dominicana",  "Trinidad y Tobago", "Uruguay","Venezuela","America Latina y el Caribe","Iberoamerica"))  %>%
+  arrange(desc(porcentaje)) %>% remove_rownames
+
+formattable(persofem, 
+            list(porcentaje = color_bar("yellow")), align=c('l','r')
+            )
+
+
+
+
+```
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+Educación Superior
+=====================================  
+
+
+Row {data-width=400}
+-------------------------------------
+
+
+
+
+### Cantidad de Estudiantes
+
+
+```{r}
+
+renderHighchart({
+
+ grafico_01 <- pais() %>%
+    filter(indicator_name == 'ES_ESTUDTOTAL') %>%
+    unique()
+
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Cantidad de Estudiantes', data =grafico_01$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+        hc_xAxis( categories = paste0(rango_temporal_indices) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( " {point.y} Estudiantes"))   %>%
+    hc_legend(enabled = FALSE)
+  
+})
+
+  
+
+
+
+```
+  
+  
+
+
+### Distribucion por nivel CINE Estudiantes - Ultimo año disponible
+
+```{r}
+
+renderHighchart({
+
+  
+  
+  estud_cine <- pais() %>%  filter(indicator_name %in% c('PCTESTUDXCINE') & ultimo_anio == 1) %>% unique()
+  
+  if (nrow(estud_cine > 0)) {
+  
+  estud_cine <- hchart(estud_cine, "pie", hcaes(name = fila , y = (valor)*100), name = "%", innerSize = "20%")
+
+  }
+ else {}
+
+})
+
+
+
+```   
+
+
+  
+Row {data-width=400}
+-------------------------------------
+
+
+### Cantidad de Graduados
+
+
+```{r}
+
+
+renderHighchart({
+
+ grafico_01 <- pais() %>%
+    filter(indicator_name == 'ES_GRADUADOS') %>%
+    unique()
+
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Cantidad de Graduados', data =grafico_01$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+        hc_xAxis( categories = paste0(rango_temporal_indices) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( " {point.y} Graduados"))   %>%
+    hc_legend(enabled = FALSE)
+  
+})
+
+  
+
+
+
+```
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Distribucion por nivel CINE Graduados - Ultimo año disponible
+
+```{r}
+
+renderHighchart({
+
+  grad_cine <- pais() %>%  filter(indicator_name %in% c('PCTEGRADXCINE') & ultimo_anio == 1) %>% unique()
+  
+  if (nrow(grad_cine > 0)) {
+    
+  graf <- hchart(grad_cine, "pie", hcaes(name = fila , y = valor), name = "%", innerSize = "20%")
+
+  }
+ else {}
+
+})
+
+
+
+
+
+
+
+
+```   
+
+
+
+Produccion Cientifica
+=====================================  
+
+
+Row {data-width=400}
+-------------------------------------
+
+
+
+
+### Cantidad de Publicaciones en SCOPUS
+
+
+```{r}
+
+renderHighchart({
+
+ grafico_21 <- pais() %>%
+    filter(indicator_name == 'CSCOPUS') %>%
+    unique()
+
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Cantidad de Publicaciones en Scopus', data =grafico_21$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+        hc_xAxis( categories = paste0(rango_temporal) ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( " {point.y} Publicaciones en Scopus"))   %>%
+    hc_legend(enabled = FALSE)
+  
+})
+
+  
+
+
+
+```
+  
+
+
+### Publicaciones en SCOPUS cada 100 mil habitantes
+
+```{r}
+
+
+renderHighchart({
+
+
+
+  grafico_25a <- pais() %>%
+   filter(indicator_name == 'SCOPUSxH' ) %>%
+    unique() %>% 
+   mutate(valor=round(valor,1))  
+
+  
+  grafico_25b <- base_total %>%
+   filter(indicator_name == 'SCOPUSxH'  & country =='America Latina y el Caribe') %>%
+    unique() %>% 
+   mutate(valor=round(valor,1))  
+  
+  
+  grafico_25c <- base_total %>%
+   filter(indicator_name == 'SCOPUSxH'  & country =='Iberoamerica') %>%
+    unique() %>% 
+   mutate(valor=round(valor,1))  
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = paste0(input$country), data =grafico_25a$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_add_series(name = 'America Latina y el Caribe', data =grafico_25b$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_add_series(name = 'Iberoamerica', data =grafico_25c$valor,  type = "spline" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+    hc_yAxis(min = 0) %>%
+    hc_xAxis( categories = paste0(rango_temporal) ) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = "{point.y} Public en Scopus cada 100 mil habit")   %>%
+    hc_legend(enabled = TRUE)
+  
+  
+})
+
+  
+
+
+```   
+
+
+  
+Row {data-width=400}
+-------------------------------------
+
+
+
+### Cantidad de Patentes PCT
+
+
+```{r}
+
+renderHighchart({
+
+ grafico_22 <- pais() %>%
+    filter(indicator_name == 'PATPCT') %>%
+    unique()  
+
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'spline') %>%
+    hc_series( list(name = 'Cantidad de Patentes PCT', data =grafico_22$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+        hc_xAxis( categories = paste0(rango_temporal) ) %>%
+        hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( " {point.y} Patentes"))   %>%
+    hc_legend(enabled = FALSE)
+  
+})
+
+  
+
+
+
+```
+  
+
+
+### Cantidad de Patentes Solicitadas
+
+
+```{r}
+
+renderHighchart({
+
+ grafico_23a <- pais() %>%
+    filter(indicator_name == 'CPATSOL' & fila =='de residentes') %>%
+    unique()
+
+ 
+ grafico_23b <- pais() %>%
+    filter(indicator_name == 'CPATSOL' & fila =='de no residentes') %>%
+    unique()
+
+  highchart() %>%
+    hc_exporting(enabled = TRUE, formAttributes = list(target = "_blank")) %>%
+    hc_chart(type = 'area') %>%
+    hc_series( list(name = 'No Residentes', data =grafico_23b$valor,  marker = list(enabled = F), lineWidth = 3 ) ) %>%
+    hc_add_series(name = 'Residentes', data =grafico_23a$valor,  type = "area" ,  marker = list(enabled = F), lineWidth = 3 ) %>%
+        hc_xAxis( categories = paste0(rango_temporal) ) %>%
+        hc_yAxis(min = 0) %>%
+    hc_plotOptions(column = list(dataLabels = list(enabled = F), stacking = "normal",enableMouseTracking = T ) )%>%
+    hc_tooltip(crosshairs = TRUE, borderWidth = 5,  pointFormat = paste0( " {point.y} Patentes Solicitadas"))   %>%
+    hc_legend(enabled = TRUE)
+  
+})
+
+  
+  
+
+
+```
+  
+
