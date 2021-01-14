@@ -59,7 +59,12 @@ SET t1.year= t2.year
 WHERE t1.year is null and  t1.ut=t2.ut
 
 
-
+#####Esto actualiza la tabla author_address#####
+UPDATE author_address t1 
+INNER JOIN author_gender t2 
+ON t1.author_id=t2.author_id
+SET t1.gender= t2.gender
+WHERE t1.gender is null and t1.author_id=t2.author_id
 
 
 
